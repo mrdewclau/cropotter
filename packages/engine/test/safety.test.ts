@@ -6,6 +6,250 @@ import { validatePrepared } from "../src/outputs.js";
 import { barcodePng, fixture, labelPdf, scannedLabelPng } from "./fixtures.js";
 
 describe("safety and coordinate regression cases", () => {
+  it("rejects Type3 glyph programs that can hide unreadable inline images", async () => {
+    const source = await PDFDocument.load(await labelPdf()),
+      page = source.getPage(0);
+    const glyph = source.context.register(
+      source.context.flateStream(
+        "1000 0 0 0 1000 1000 d1 q 1000 0 0 1000 0 0 cm BI /W 0 /H 1 /BPC 8 /CS /G ID \x00 EI Q",
+      ),
+    );
+    const font = source.context.register(
+      source.context.obj({
+        Type: "Font",
+        Subtype: "Type3",
+        FontBBox: [0, 0, 1000, 1000],
+        FontMatrix: [0.001, 0, 0, 0.001, 0, 0],
+        CharProcs: { A: glyph },
+        Encoding: { Type: "Encoding", Differences: [65, "A"] },
+        FirstChar: 65,
+        LastChar: 65,
+        Widths: [1000],
+        Resources: {},
+      }),
+    );
+    page.node.setFontDictionary(PDFName.of("FInline"), font);
+    page.node.addContentStream(
+      source.context.register(
+        source.context.flateStream(
+          "BT /FInline 30 Tf 1 0 0 1 30 30 Tm (A) Tj ET",
+        ),
+      ),
+    );
+    const engine = await createNodeEngine();
+    try {
+      expect(
+        await engine.prepare(await source.save()).then(
+          () => "RESOLVED",
+          (error) => error.code,
+        ),
+      ).toBe("UNSUPPORTED_CONTENT");
+    } finally {
+      await engine.dispose();
+    }
+  });
+  it("rejects tiling pattern programs rather than losing nested image content", async () => {
+    const source = await PDFDocument.load(await labelPdf()),
+      page = source.getPage(0);
+    const pattern = source.context.register(
+      source.context.flateStream("BI /W 0 /H 1 /BPC 8 /CS /G ID \x00 EI", {
+        Type: "Pattern",
+        PatternType: 1,
+        PaintType: 1,
+        TilingType: 1,
+        BBox: [0, 0, 10, 10],
+        XStep: 10,
+        YStep: 10,
+        Resources: {},
+      }),
+    );
+    page.node
+      .Resources()!
+      .set(PDFName.of("Pattern"), source.context.obj({ PInline: pattern }));
+    page.node.addContentStream(
+      source.context.register(
+        source.context.flateStream(
+          "q /Pattern cs /PInline scn 30 30 50 50 re f Q",
+        ),
+      ),
+    );
+    const engine = await createNodeEngine();
+    try {
+      expect(
+        await engine.prepare(await source.save()).then(
+          () => "RESOLVED",
+          (error) => error.code,
+        ),
+      ).toBe("UNSUPPORTED_CONTENT");
+    } finally {
+      await engine.dispose();
+    }
+  });
+  it.each([0, -1, 0.5])(
+    "rejects malformed embedded image dimensions (%s) before the renderer can omit them",
+    async (dimension) => {
+      const source = await PDFDocument.load(await labelPdf());
+      const image = await source.embedPng(await barcodePng("QRCode"));
+      await image.embed();
+      const stream = source.context.lookup(image.ref) as PDFRawStream;
+      stream.dict.set(PDFName.of("Width"), PDFNumber.of(dimension));
+      source
+        .getPage(0)
+        .drawImage(image, { x: 40, y: 50, width: 50, height: 50 });
+      const engine = await createNodeEngine();
+      try {
+        expect(
+          await engine.prepare(await source.save()).then(
+            () => "RESOLVED",
+            (error) => error.code,
+          ),
+        ).toBe("INVALID_PDF");
+      } finally {
+        await engine.dispose();
+      }
+    },
+  );
+  it("rejects corrupt image decoding even when another barcode remains readable", async () => {
+    const source = await PDFDocument.load(await labelPdf()),
+      image = await source.embedPng(await barcodePng("QRCode"));
+    await image.embed();
+    (source.context.lookup(image.ref) as PDFRawStream).dict.set(
+      PDFName.of("Filter"),
+      PDFName.of("DCTDecode"),
+    );
+    source.getPage(0).drawImage(image, { x: 40, y: 50, width: 50, height: 50 });
+    const engine = await createNodeEngine();
+    try {
+      expect(
+        await engine.prepare(await source.save()).then(
+          () => "RESOLVED",
+          (error) => error.code,
+        ),
+      ).toBe("UNSUPPORTED_CONTENT");
+    } finally {
+      await engine.dispose();
+    }
+  });
+  it.each(["0 /H 1", "1", "5000 /H 5000"])(
+    "rejects inline images (%s) without silently marking a populated page blank",
+    async (header) => {
+      const source = await PDFDocument.load(await fixture("multipage"));
+      source
+        .getPage(1)
+        .node.addContentStream(
+          source.context.register(
+            source.context.flateStream(
+              `q 40 0 0 40 30 20 cm BI /W ${header} /BPC 8 /CS /G ID \x00 EI Q`,
+            ),
+          ),
+        );
+      const engine = await createNodeEngine();
+      try {
+        expect(
+          await engine.prepare(await source.save()).then(
+            () => "RESOLVED",
+            (error) => error.code,
+          ),
+        ).toBe("UNSUPPORTED_CONTENT");
+      } finally {
+        await engine.dispose();
+      }
+    },
+  );
+  it.each(["split-content", "nested-form", "valid-inline"])(
+    "rejects inline-image content in %s",
+    async (kind) => {
+      const source = await PDFDocument.load(await labelPdf()),
+        page = source.getPage(0);
+      const content =
+        "q 40 0 0 40 30 20 cm BI /W 1 /H 1 /BPC 8 /CS /G ID \x00 EI Q";
+      if (kind === "split-content") {
+        const at = content.indexOf("BI") + 1;
+        for (const part of [content.slice(0, at), content.slice(at)])
+          page.node.addContentStream(
+            source.context.register(source.context.flateStream(part)),
+          );
+      } else if (kind === "nested-form") {
+        const stream = source.context.flateStream(content, {
+          Type: "XObject",
+          Subtype: "Form",
+          BBox: [0, 0, 1, 1],
+          Resources: {},
+        });
+        page.node.setXObject(
+          PDFName.of("InlineForm"),
+          source.context.register(stream),
+        );
+        page.node.addContentStream(
+          source.context.register(
+            source.context.flateStream("q /InlineForm Do Q"),
+          ),
+        );
+      } else
+        page.node.addContentStream(
+          source.context.register(source.context.flateStream(content)),
+        );
+      const engine = await createNodeEngine();
+      try {
+        expect(
+          await engine.prepare(await source.save()).then(
+            () => "RESOLVED",
+            (error) => error.code,
+          ),
+        ).toBe("UNSUPPORTED_CONTENT");
+      } finally {
+        await engine.dispose();
+      }
+    },
+  );
+  it("allows BI inside PDF strings, hex strings, comments and names", async () => {
+    const source = await PDFDocument.load(await labelPdf());
+    source
+      .getPage(0)
+      .node.addContentStream(
+        source.context.register(
+          source.context.flateStream(
+            "% BI /W 0 ID\n/BI MP\n/Span << /ActualText (BI \\( nested \\) string) >> BDC EMC\n/Span << /ActualText <4249> >> BDC EMC\n",
+          ),
+        ),
+      );
+    const engine = await createNodeEngine();
+    try {
+      expect((await engine.prepare(await source.save())).status).toBe("ready");
+    } finally {
+      await engine.dispose();
+    }
+  });
+  it("normalizes a modified canonical PDF instead of trusting stale content metadata", async () => {
+    const engine = await createNodeEngine();
+    try {
+      const first = (await engine.prepare(await labelPdf())).prepared!;
+      const modified = await PDFDocument.load(first.pdf, {
+        updateMetadata: false,
+      });
+      modified.getPage(0).drawRectangle({
+        x: 8.99,
+        y: 220,
+        width: 1,
+        height: 20,
+        color: rgb(0, 0, 0),
+      });
+      const bytes = await modified.save(),
+        second = (await engine.prepare(bytes)).prepared!;
+      expect(
+        second.pdf.length === bytes.length &&
+          second.pdf.every((v, i) => v === bytes[i]),
+      ).toBe(false);
+      expect(second.labels[0].contentRectPt).toEqual({
+        x: 9,
+        y: 13.5,
+        width: 270,
+        height: 405,
+      });
+    } finally {
+      await engine.dispose();
+    }
+  });
   it("serializes work on an engine instance to bound peak rendering memory", async () => {
     const engine = await createNodeEngine();
     const source = await labelPdf();
@@ -134,15 +378,13 @@ describe("safety and coordinate regression cases", () => {
     try {
       const result = await engine.prepare(await labelPdf());
       const pdf = await PDFDocument.load(result.prepared!.pdf);
-      pdf
-        .getPage(0)
-        .drawRectangle({
-          x: 0,
-          y: 0,
-          width: 3,
-          height: 432,
-          color: rgb(0, 0, 0),
-        });
+      pdf.getPage(0).drawRectangle({
+        x: 0,
+        y: 0,
+        width: 3,
+        height: 432,
+        color: rgb(0, 0, 0),
+      });
       const report = await validatePrepared(await createNodeRuntime(), {
         ...result.prepared!,
         pdf: await pdf.save(),

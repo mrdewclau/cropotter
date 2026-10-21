@@ -12,6 +12,7 @@ import {
 } from "./geometry.js";
 import { PdfBackend } from "./pdf.js";
 import { ENGINE_VERSION } from "./detection.js";
+import { canonicalBytesIntact, saveCanonical } from "./canonical.js";
 import type {
   Analysis,
   LabelManifest,
@@ -142,7 +143,9 @@ export async function compose(
     );
   const source = await PDFDocument.load(bytes, { updateMetadata: false }),
     output = await PDFDocument.create();
-  const canonical = readCanonical(source),
+  const canonical = (await canonicalBytesIntact(bytes))
+      ? readCanonical(source)
+      : [],
     labels: LabelManifest[] = [],
     warnings: string[] = [];
   let passThrough =
@@ -200,9 +203,6 @@ export async function compose(
       if (previousValid && contains(previous, ink, 0.8)) {
         placement = { x: 0, y: 0, width: 288, height: 432, scale: 1 };
         contentRect = previous;
-      } else if (contains({ x: 9, y: 9, width: 270, height: 414 }, ink, 0)) {
-        placement = { x: 0, y: 0, width: 288, height: 432, scale: 1 };
-        contentRect = ink;
       }
     }
     const target = output.addPage([288, 432]);
@@ -325,7 +325,7 @@ export async function compose(
     schemaVersion: 1,
     engineVersion: ENGINE_VERSION,
     sourceDigest: analysis.sourceDigest,
-    pdf: passThrough ? bytes.slice() : await output.save(),
+    pdf: passThrough ? bytes.slice() : await saveCanonical(output),
     labels,
     pages: analysis.pages.map((p) => ({
       pageIndex: p.pageIndex,

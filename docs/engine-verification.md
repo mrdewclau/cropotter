@@ -9,9 +9,11 @@ Date: 2026-10-21. Engine: 0.1.0. Runtime: Node 24.19.0, Linux x86_64. This is th
 - Native 4 × 6 and landscape-letter embedded images/Forms; instructions; multiple labels/pages; blank, malformed, encrypted and oversized inputs; rotations; nonzero boxes/UserUnit; cancellation; serialization; preserved vector text; annotation raster fallback; idempotence; barcode loss/count changes and white-margin regressions.
 - Actual PNG/JPG decode checks dimensions, margin pixels and barcode evidence. CLI tests write real artifacts and reopen their manifest and bitmap.
 - Playwright runs the engine and file/crop/export harness in Chromium, Firefox and WebKit. Tests block external HTTP requests during conversion. Local bundled assets are used for PDF and barcode processing.
-- Independent Python pypdf/Pillow inspection of the CLI's landscape-letter fixture output confirmed all five PDF page boxes at `(0, 0, 288, 432)`, Rotate 0, UserUnit 1; PNG/JPG at 812 × 1218; PNG density 202.9968 DPI (integer pixels/metre rounding) and JPEG density exactly 203 DPI.
+- Independent Python pypdf/Pillow inspection of the final checksum-stamped CLI output confirmed all five PDF page boxes at `(0, 0, 288, 432)`, Rotate 0, UserUnit 1; PNG/JPG at 812 × 1218 and 1200 × 1800; PNG density 202.9968/299.9994 DPI (integer pixels/metre rounding) and JPEG density exactly 203/300 DPI.
 
-Exact final test counts and code review results are recorded below when final checks finish.
+Final results: **52 Vitest tests passed across six files; all 9 Playwright tests passed** (three each in Chromium, Firefox and WebKit). Strict type checking, package/declaration build, production Vite harness build, formatting and whitespace checks passed. The built package was also imported and exercised through its public Node export.
+
+A fresh code review found malformed images, failed image decoders, nested inline-image programs and stale canonical metadata could cause silent loss or violate margins. Dedicated reproductions were added, fixes verified, and re-review concluded **no blocking findings remain**. Current tests reject these inputs explicitly instead of treating a partial page as ready or blank.
 
 ## Test host setup
 
@@ -20,6 +22,8 @@ Chromium and Firefox ran with the host libraries. This unprivileged container la
 ## Explicit limits
 
 The original private customer PDF was inspected during research but is not committed. The regression fixture reproduces its inspected geometry: a 792 × 612 point landscape-letter page with a 288 × 432 embedded label at top-left `(36, 90)`. Current automated acceptance uses synthetic data; a current private customer-file check remains outstanding.
+
+Version 1 rejects inline-image PDFs, Type3 font programs and tiling patterns. Drawing streams must be uncompressed or Flate-compressed without prediction, and decoded drawing content is capped at the configured input byte limit. These limits make unsupported nested content explicit; they are not silent raster fallbacks. Changed/external PDFs are fitted again; idempotent pass-through requires the original canonical byte checksum and validation.
 
 ZXing's MaxiCode reader requires an isolated, unrotated, unskewed symbol. Full-label localization for MaxiCode is not implemented. MaxiCode-only test labels require review. Barcode validation covers detected supported symbols; it cannot establish preservation of symbols the reader fails to detect. Low-quality scans and unsupported content must receive human review; upscaling does not restore source quality.
 

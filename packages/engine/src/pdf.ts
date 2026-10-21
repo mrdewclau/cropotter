@@ -2,7 +2,7 @@ import type {
   PDFDocumentProxy,
   PDFPageProxy,
 } from "pdfjs-dist/types/src/display/api.js";
-import { PDFDocument, PDFName, PDFNumber, PDFRawStream } from "pdf-lib";
+import { preflightPdf } from "./pdf-preflight.js";
 import { checkAbort, DEFAULT_LIMITS, EngineError } from "./errors.js";
 import { IDENTITY, multiply, transformRect } from "./geometry.js";
 import type {
@@ -23,44 +23,7 @@ export class PdfBackend {
     signal?: AbortSignal,
   ): Promise<PDFDocumentProxy> {
     checkAbort(signal);
-    try {
-      const source = await PDFDocument.load(bytes, {
-        ignoreEncryption: true,
-        updateMetadata: false,
-        throwOnInvalidObject: true,
-      });
-      if (source.isEncrypted)
-        throw new EngineError(
-          "ENCRYPTED_PDF",
-          "Encrypted PDFs are unsupported. Export an unencrypted copy.",
-        );
-      if (source.getPageCount() > this.limits.maxPages)
-        throw new EngineError(
-          "LIMIT_EXCEEDED",
-          "The PDF exceeds the page limit.",
-        );
-      // PDF.js may otherwise omit oversized images from an otherwise renderable page.
-      for (const [, object] of source.context.enumerateIndirectObjects())
-        if (
-          object instanceof PDFRawStream &&
-          object.dict.get(PDFName.of("Subtype")) === PDFName.of("Image")
-        ) {
-          const width = object.dict
-            .lookupMaybe(PDFName.of("Width"), PDFNumber)
-            ?.asNumber();
-          const height = object.dict
-            .lookupMaybe(PDFName.of("Height"), PDFNumber)
-            ?.asNumber();
-          if (width && height && width * height > this.limits.maxRenderPixels)
-            throw new EngineError(
-              "LIMIT_EXCEEDED",
-              "An embedded image exceeds the render size limit.",
-            );
-        }
-    } catch (error) {
-      if (error instanceof EngineError) throw error;
-      throw new EngineError("INVALID_PDF", "The PDF could not be parsed.");
-    }
+    await preflightPdf(bytes, this.limits, signal);
     checkAbort(signal);
     const api = await import("pdfjs-dist/legacy/build/pdf.mjs");
     api.GlobalWorkerOptions.workerSrc = this.runtime.pdfAssets.workerSrc;
@@ -182,6 +145,55 @@ export class PdfBackend {
     options.signal?.addEventListener("abort", abort, { once: true });
     try {
       await task.promise;
+      checkAbort(options.signal);
+      const api = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      const ops = await page.getOperatorList({ intent: "print" });
+      const ids = new Set<string>();
+      for (let i = 0; i < ops.fnArray.length; i++) {
+        const fn = ops.fnArray[i],
+          args = ops.argsArray[i];
+        if (
+          fn === api.OPS.paintImageXObject ||
+          fn === api.OPS.paintImageXObjectRepeat
+        )
+          ids.add(args[0]);
+        if (
+          fn === api.OPS.paintImageMaskXObject &&
+          typeof args[0]?.data === "string"
+        )
+          ids.add(args[0].data);
+      }
+      // PDF.js catches some decoder failures and resolves a null image. Rendering alone
+      // can therefore succeed with missing pixels even with stopAtErrors enabled.
+      for (const id of ids) {
+        const store = id.startsWith("g_") ? page.commonObjs : page.objs;
+        let onAbort: () => void = () => {};
+        let image: any;
+        try {
+          image = await new Promise((resolve, reject) => {
+            onAbort = () =>
+              reject(new EngineError("ABORTED", "Processing was cancelled."));
+            options.signal?.addEventListener("abort", onAbort, { once: true });
+            if (options.signal?.aborted) {
+              onAbort();
+              return;
+            }
+            store.get(id, resolve);
+          });
+        } finally {
+          options.signal?.removeEventListener("abort", onAbort);
+        }
+        if (!image)
+          throw new EngineError(
+            "UNSUPPORTED_CONTENT",
+            "An embedded image could not be decoded completely.",
+          );
+        if (image.width * image.height > this.limits.maxRenderPixels)
+          throw new EngineError(
+            "LIMIT_EXCEEDED",
+            "A decoded image exceeds the render size limit.",
+          );
+      }
       checkAbort(options.signal);
       return { surface, scale };
     } catch (error) {
