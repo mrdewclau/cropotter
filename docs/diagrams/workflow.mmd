@@ -1,0 +1,46 @@
+flowchart TD
+    subgraph intake ["1. Ingest on any device"]
+        chromeInput["Chrome extension: current URL or PDF"]
+        desktopInput["Desktop app: PDF or URL"]
+        iphoneInput["iPhone: Files, share, or URL"]
+        androidInput["Android: Files, share, or URL"]
+        webInput["Web app: PDF or URL"]
+    end
+    chromeInput --> loadPdf
+    desktopInput --> loadPdf
+    iphoneInput --> loadPdf
+    androidInput --> loadPdf
+    webInput --> loadPdf
+    subgraph engine ["2. Shared local engine"]
+        loadPdf["Load and validate PDF"]
+        detectLabel["Detect label and orientation"]
+        cropLabel["Fit 4 x 6; white 1/8-inch margins"]
+        qualityCheck{"Quality checks pass?"}
+        reviewCrop["Review crop or source"]
+        readyLabel["Prepared 4 x 6 label"]
+        loadPdf --> detectLabel
+        detectLabel --> cropLabel
+        cropLabel --> qualityCheck
+        qualityCheck -->|"Yes"| readyLabel
+        qualityCheck -->|"Needs review"| reviewCrop
+        reviewCrop -->|"Adjust or replace"| loadPdf
+    end
+    readyLabel --> actionChoice{"3. Choose action"}
+    actionChoice -->|"Print now or auto-print"| printDispatch["Print on selected device"]
+    actionChoice -->|"Save on this device"| localQueue["Local queue"]
+    actionChoice -->|"Sync to account"| cloudQueue["Shared account queue"]
+    actionChoice -->|"Export"| fileExport["Download PDF, PNG, JPG"]
+    localQueue -->|"Print when requested"| printDispatch
+    cloudQueue -->|"Available across devices"| queueView["Choose label on phone or computer"]
+    queueView -->|"Print when requested"| reserveJob["Reserve job for one device"]
+    reserveJob --> printDispatch
+    printDispatch --> connectPrinter["Connect selected printer"]
+    connectPrinter --> devicePrint["Device sends via Bluetooth or USB"]
+    devicePrint --> munbyn["MUNBYN ITPP130B"]
+    munbyn --> paperLabel(["Printed shipping label"])
+    style intake fill:#C2E5FF,stroke:#3DADFF
+    style engine fill:#C6FAF6,stroke:#5AD8CC
+    style cloudQueue fill:#DCCCFF,stroke:#874FFF
+    style localQueue fill:#FFECBD,stroke:#FFC943
+    style reviewCrop fill:#FFE0C2,stroke:#FF9E42
+    style paperLabel fill:#CDF4D3,stroke:#66D575

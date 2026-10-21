@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.superpowers/
+.private/
+output/
+tools/engine-harness/public/engine-assets/
+*.log

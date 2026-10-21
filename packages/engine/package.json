@@ -1,0 +1,12 @@
+{
+  "name": "@crop-ship/engine", "version": "0.1.0", "type": "module",
+  "exports": {
+    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
+    "./browser": {"types": "./dist/adapters/browser.d.ts", "import": "./dist/adapters/browser.js"},
+    "./node": {"types": "./dist/adapters/node.d.ts", "import": "./dist/adapters/node.js"}
+  },
+  "files": ["dist"],
+  "dependencies": {"pdfjs-dist": "6.4.299", "pdf-lib": "1.17.1", "zxing-wasm": "3.1.6"},
+  "peerDependencies": {"@napi-rs/canvas": ">=0.1.80"},
+  "peerDependenciesMeta": {"@napi-rs/canvas": {"optional": true}}
+}

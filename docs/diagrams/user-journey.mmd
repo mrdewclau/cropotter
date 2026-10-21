@@ -1,0 +1,33 @@
+flowchart TD
+    needLabel(["I have a label to format and print"])
+    subgraph sendLabel ["Send it to crop/ship"]
+        chromePath["In Chrome: click Send to crop/ship"]
+        desktopPath["On my computer: drop a PDF or paste a link"]
+        phonePath["On my phone: share a PDF or link to crop/ship"]
+        webPath["On the website: upload a PDF or paste a link"]
+    end
+    needLabel --> chromePath
+    needLabel --> desktopPath
+    needLabel --> phonePath
+    needLabel --> webPath
+    chromePath --> formatLabel
+    desktopPath --> formatLabel
+    phonePath --> formatLabel
+    webPath --> formatLabel
+    formatLabel["crop/ship formats my label for me"]
+    formatLabel --> labelReady["My 4 x 6 label is ready"]
+    labelReady -->|"Auto-print is on"| labelPrints
+    labelReady -->|"Otherwise"| nextAction{"Print, save, or download?"}
+    nextAction -->|"Print now"| tapPrint["I tap Print"]
+    nextAction -->|"Save or switch devices"| myLabels["Saved in My Labels"]
+    nextAction -->|"Download"| downloadLabel["I get a PDF, PNG, or JPG"]
+    myLabels -->|"When I am ready"| openLabels["I open My Labels on my phone or computer"]
+    openLabels -->|"Choose my label"| tapPrint
+    tapPrint --> labelPrints["My shipping label prints"]
+    labelPrints --> readyToShip(["Peel, stick, ship"])
+    style sendLabel fill:#EAF5FF,stroke:#91C8F0
+    style formatLabel fill:#C6FAF6,stroke:#5AD8CC
+    style labelReady fill:#C6FAF6,stroke:#5AD8CC
+    style myLabels fill:#DCCCFF,stroke:#874FFF
+    style labelPrints fill:#CDF4D3,stroke:#66D575
+    style readyToShip fill:#CDF4D3,stroke:#66D575

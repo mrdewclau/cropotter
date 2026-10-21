@@ -1,0 +1,23 @@
+flowchart TD
+    preparedLabel["Prepared 4 x 6 label"]
+    preparedLabel --> printDevice{"Choose printing device"}
+    printDevice -->|"iPhone or Android"| nativeApp["Native phone app"]
+    nativeApp --> nativeEncode["203 DPI bitmap and printer commands"]
+    nativeEncode --> nativeBluetooth["Native Bluetooth adapter"]
+    printDevice -->|"Compatible Chrome or extension tab"| browserApp["Browser print session"]
+    browserApp --> browserEncode["203 DPI bitmap and printer commands"]
+    browserEncode --> webBluetooth["Web Bluetooth adapter"]
+    printDevice -->|"Windows or macOS"| desktopWorker["Desktop background print worker"]
+    desktopWorker --> printPage["4 x 6 page at actual size"]
+    printPage --> vendorDriver["Installed MUNBYN driver"]
+    vendorDriver -->|"Windows"| windowsPort["Bluetooth or USB"]
+    vendorDriver -->|"macOS"| macPort["USB"]
+    nativeBluetooth --> printer["MUNBYN ITPP130B"]
+    webBluetooth --> printer
+    windowsPort --> printer
+    macPort --> printer
+    printer --> physicalLabel(["Printed label"])
+    style nativeApp fill:#C2E5FF,stroke:#3DADFF
+    style browserApp fill:#C2E5FF,stroke:#3DADFF
+    style desktopWorker fill:#C2E5FF,stroke:#3DADFF
+    style physicalLabel fill:#CDF4D3,stroke:#66D575

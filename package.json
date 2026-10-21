@@ -1,0 +1,25 @@
+{
+  "name": "crop-ship",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "engines": {"node": ">=24"},
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p packages/engine/tsconfig.build.json",
+    "assets": "node tools/engine-harness/copy-assets.mjs",
+    "test:browser": "npm run assets && playwright test",
+    "harness": "npm run assets && vite --config tools/engine-harness/vite.config.ts",
+    "engine": "tsx tools/engine-harness/cli.ts"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "latest",
+    "@playwright/test": "1.64.1",
+    "@types/node": "^24.0.0",
+    "tsx": "latest",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}
