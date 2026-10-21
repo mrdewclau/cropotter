@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>crop/ship engine harness</title>
+    <style>
+      body {
+        font: 16px system-ui;
+        max-width: 960px;
+        margin: 32px auto;
+        padding: 0 20px;
+        color: #17242d;
+        background: #f6f7f8;
+      }
+      fieldset {
+        margin: 18px 0;
+        border: 1px solid #c8d0d7;
+        border-radius: 8px;
+        padding: 18px;
+      }
+      input,
+      button,
+      textarea {
+        font: inherit;
+        padding: 8px;
+        margin: 4px;
+      }
+      input[type="url"] {
+        width: 70%;
+      }
+      button {
+        cursor: pointer;
+      }
+      textarea {
+        display: block;
+        width: 90%;
+        height: 90px;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: white;
+        padding: 16px;
+      }
+      canvas {
+        max-width: 300px;
+        height: auto;
+        background: white;
+        border: 1px solid #ccd;
+      }
+      #downloads a {
+        display: inline-block;
+        margin: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>crop/ship engine harness</h1>
+    <p>
+      Local PDF conversion and validation. Developer tool; printer transport is
+      a separate integration.
+    </p>
+    <fieldset>
+      <legend>Input</legend>
+      <label
+        >PDF <input id="file" type="file" accept="application/pdf"
+      /></label>
+      <p>
+        or <input id="url" type="url" placeholder="Direct PDF URL" /><button
+          id="fetch"
+        >
+          Load URL
+        </button>
+      </p>
+      <button id="analyze">Analyze</button><button id="prepare">Prepare</button>
+    </fieldset>
+    <fieldset>
+      <legend>Review selection (optional)</legend>
+      <label
+        >Selections JSON; zero-based pages, crop points from the visible page’s
+        top left.<textarea
+          id="selection"
+          placeholder='[{"pageIndex":0,"region":{"x":36,"y":90,"width":288,"height":432}}]'
+        ></textarea>
+      </label>
+    </fieldset>
+    <p id="status" role="status">Choose a PDF or paste a URL.</p>
+    <canvas id="preview" hidden></canvas>
+    <fieldset>
+      <legend>Export prepared labels</legend>
+      <label
+        >DPI
+        <select id="dpi">
+          <option>203</option>
+          <option>300</option>
+        </select></label
+      ><button data-export="pdf">PDF</button
+      ><button data-export="png">PNG</button
+      ><button data-export="jpg">JPG</button
+      ><button id="mono">Thermal bitmap</button>
+      <div id="downloads"></div>
+    </fieldset>
+    <details open>
+      <summary>Manifest / analysis</summary>
+      <pre id="report"></pre>
+    </details>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>
