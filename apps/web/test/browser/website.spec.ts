@@ -168,7 +168,22 @@ test("demonstrates the PDF crop transformation in aligned panels and can pause i
   const inputPanel = await page.locator(".intake-input").boundingBox();
   expect(Math.abs(inputPanel!.y - explanation!.y)).toBeLessThan(2);
   expect(Math.abs(inputPanel!.height - explanation!.height)).toBeLessThan(2);
+  const supportsWebGL = await page.evaluate(() => {
+    const context = document.createElement("canvas").getContext("webgl2");
+    context?.getExtension("WEBGL_lose_context")?.loseContext();
+    return Boolean(context);
+  });
   const canvas = guide.locator(".three-canvas");
+  if (!supportsWebGL) {
+    // Headless Firefox on Linux can lack WebGL; verify the intended fallback.
+    await expect(guide.locator(".scene-fallback")).toBeVisible();
+    await expect(guide.locator(".demo-caption")).toHaveText(
+      "A proper 4 × 6. Ready to print.",
+    );
+    await expect(canvas).toHaveCount(0);
+    await expect(guide.getByRole("button")).toHaveCount(0);
+    return;
+  }
   await expect(canvas).toHaveCount(1);
   const still = await canvas.screenshot();
   await expect
@@ -274,18 +289,28 @@ test("formats the sample and offers actual PDF, PNG and ZIP downloads", async ({
 
 test("renames every downloaded asset and archive contents", async ({
   page,
+  browserName,
 }) => {
+  // Linux WebKit sanitizes spaces in its suggested filename. The app's
+  // download attribute and archive entries must still retain the exact name.
+  const suggestedName = (name: string) =>
+    browserName === "webkit" && process.platform === "linux"
+      ? name.replaceAll(" ", "_")
+      : name;
   await page.goto("/");
   await page.getByRole("button", { name: "Try a sample label" }).click();
   await ready(page);
   await page.getByLabel("File name", { exact: true }).fill("Order 204.pdf");
+  await page.getByLabel("File name", { exact: true }).press("Enter");
   for (const [label, expected] of [
     ["Download PDF", "Order 204.pdf"],
     ["Download PNG", "Order 204.png"],
   ]) {
+    const link = page.getByRole("link", { name: label, exact: true });
+    await expect(link).toHaveAttribute("download", expected);
     const pending = page.waitForEvent("download");
-    await page.getByRole("link", { name: label, exact: true }).click();
-    expect((await pending).suggestedFilename()).toBe(expected);
+    await link.click();
+    expect((await pending).suggestedFilename()).toBe(suggestedName(expected));
   }
   const archiveBytes = await page
     .getByRole("link", { name: /PDF \+ PNG/ })
@@ -300,10 +325,14 @@ test("renames every downloaded asset and archive contents", async ({
     "Order 204.pdf",
     "Order 204-001-203dpi.png",
   ]);
+  await expect(page.getByRole("link", { name: /PDF \+ PNG/ })).toHaveAttribute(
+    "download",
+    "Order 204.zip",
+  );
   const pending = page.waitForEvent("download");
   await page.getByRole("link", { name: /PDF \+ PNG/ }).click();
   const bundle = await pending;
-  expect(bundle.suggestedFilename()).toBe("Order 204.zip");
+  expect(bundle.suggestedFilename()).toBe(suggestedName("Order 204.zip"));
   expect(
     Object.keys(unzipSync(await readFile((await bundle.path())!))),
   ).toEqual(["Order 204.pdf", "Order 204-001-203dpi.png"]);

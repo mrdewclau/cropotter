@@ -1,4 +1,8 @@
-# CropOtter process demonstration deployment — 2026-10-22
+# CropOtter deployment history — 2026-10-22
+
+This is a chronological release record. The security release below is current. Earlier images and rollback targets predate security fixes; use them only for emergency recovery with the documented exposure understood.
+
+## Initial process demonstration release (historical)
 
 Deployed to https://cropotter.com on existing DigitalOcean Droplet 597065633 (`fww-desk`, 138.197.81.94), checkout `/opt/cropotter`, Docker Compose project `cropotter`. No DNS, firewall, proxy or unrelated-service changes were made. Original domain and infrastructure details remain in [the initial deployment record](deployment-2026-10-21.md).
 
@@ -34,8 +38,8 @@ Live global-focus acceptance: **4/4 passed** across Chromium and iPhone WebKit e
 
 ## Security release
 
-Runtime image `sha256:d3b27a8e36d2010d66569917ea5f479684c32671e48beb05d3b35647ba9c9d58`, tag `cropotter:release-20261022-security`. Node 24.22.1 pinned by official base digest; client entry `index-Bpy53eAo.js`, engine browser chunk `browser-Ciazq4ox.js`. Container is healthy, nonroot/read-only, 512 MiB memory, one CPU, 128 processes, no OOM events or restarts. Previous runtime preserved as `cropotter:before-security-20261022`.
+Runtime image `sha256:d3b27a8e36d2010d66569917ea5f479684c32671e48beb05d3b35647ba9c9d58`, tag `cropotter:release-20261022-security`. Node 24.22.1 pinned by official base digest; client entry `index-Bpy53eAo.js`, engine browser chunk `browser-Ciazq4ox.js`. Container is healthy, nonroot/read-only, 512 MiB memory, one CPU, 128 processes; Docker reports OOMKilled=false and RestartCount=0 at verification time. Previous runtime preserved as `cropotter:before-security-20261022`.
 
 Caddy now runs `/usr/local/bin/caddy-2.11.7-go1.26.10` via the original service account and the checked-in override. Binary SHA-256 `73c7e2d865ae4222ec23eceba00a8614b39c2f24326ff8226504d3c465986bc1`; official Caddy 2.11.7 source, Go 1.26.10, x/net 0.60.0. Reproducible build/scan inputs under `deploy/caddy-build`. HSTS/body/header/time bounds, explicit proxy identity overwrite and SNI/Host matching are active; Caddy 256 MiB / one CPU / 128 task limits verified. The old config is `/etc/caddy/Caddyfile.before-security-20261022`; proxy rollback requires reverting config/override and explicitly restarting, but would restore old security exposure and should only be an emergency measure. ACME certificates/state and DNS were preserved.
 
-Host ca-certificates updated to 20260816ubuntu0.24.04.1. Shared-host system upgrades/reboot remain pending coordinated approval. See [security report](security-review-2026-10-22.md) for scope, findings and final acceptance.
+Host ca-certificates updated to 20260816ubuntu0.24.04.1. The user approved shared-host maintenance: 53 eligible upgrades installed, reboot completed onto kernel 6.8.0-147-generic, host Node 22.23.4 and cloudflared 2026.10.3 running. No failed units or pending reboot marker; 5 Ubuntu-phased updates remain deferred. All checked services and tunnel readiness recovered; post-reboot live acceptance passed 6/6. See [security report](security-review-2026-10-22.md) for scope, findings and final acceptance.
