@@ -36,6 +36,10 @@ Deployment and GoDaddy changes were explicitly authorized. Do the normal read-on
 
 Public DNS snapshot used GoDaddy nameservers `ns29.domaincontrol.com` and `ns30.domaincontrol.com`; no MX/TXT/AAAA/CAA records were observed on 2026-10-22. Refresh this snapshot before edits. Keep MX/TXT and unrelated records intact, set only verified target records, and check root and www HTTPS plus the canonical redirect. Follow [deploy/README.md](deploy/README.md).
 
+## Repository publication
+
+The code, full identity source, screenshots, license, CI workflow and these notes are published on `main` at https://github.com/mrdewclau/cropotter. The connected GitHub app allowed pushes but rejected creating the repository and changing its About settings. The user created the empty public repository; the full project was then pushed successfully. README branding is complete. If desired, fill the About panel locally with: **Your labels. Ready to go. Open-source shipping-label formatting, crop review and 4 × 6 PDF/PNG downloads.** Suggested topics: `shipping-labels`, `pdf`, `typescript`, `react`, `threejs`, `label-printer`. Add cropotter.com as the website after the actual deployment is verified.
+
 ## Product decisions already made
 
 Website first: file/link in, downloadable PDF/PNG out. Chrome extension next, then iOS, then Windows/macOS, then streamlined direct printing. iPhone has priority, with Android also supported. Printer research focuses on the **MUNBYN ITPP130B**; don't promise arbitrary iOS Bluetooth access or direct printing without SDK/protocol and hardware validation. Review [printer research](docs/munbyn-itpp130b-research.md) and [architecture](docs/proposed-pipeline.md).

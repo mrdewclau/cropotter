@@ -8,4 +8,10 @@ playwright-report/
 output/
 tools/engine-harness/public/engine-assets/
 *.log
+.env
+.env.*
+!.env.example
+.DS_Store
+__pycache__/
+brand/.tesseract-work/
 apps/web/public/engine-assets/

@@ -10,3 +10,6 @@ playwright-report
 tools/engine-harness/public/engine-assets
 apps/web/public/engine-assets
 *.log
+.env
+.env.*
+brand/.tesseract-work
