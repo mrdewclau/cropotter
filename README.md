@@ -1,138 +1,102 @@
-# CropOtter
+<p align="center">
+  <img src="brand/repo-cover.svg" alt="CropOtter — Your labels. Ready to go." width="1200" />
+</p>
 
-Shared TypeScript label processing for Node and modern browsers. It accepts a PDF file or a direct HTTP(S) PDF URL, extracts an unambiguous shipping label, and prepares exact **4 × 6 inch output with at least 1/8 inch white margins**. Uncertain layouts return a review decision and can be cropped explicitly.
+<p align="center">
+  <a href="https://github.com/mrdewclau/cropotter/actions/workflows/ci.yml"><img src="https://github.com/mrdewclau/cropotter/actions/workflows/ci.yml/badge.svg" alt="Verify CropOtter" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-243A79?style=flat-square" alt="MIT license" /></a>
+  <img src="https://img.shields.io/badge/Node-24%2B-243A79?style=flat-square" alt="Node 24 or newer" />
+  <img src="https://img.shields.io/badge/output-4%20%C3%97%206-D85C32?style=flat-square" alt="4 by 6 inch output" />
+</p>
 
-The CropOtter website adds PDF upload, drag and drop, direct HTTPS links, automatic formatting, an accessible crop editor, and PDF/PNG/ZIP downloads. Accounts, shared queues, extension/desktop/mobile packaging, MUNBYN command encoding, Bluetooth transport and physical print acceptance follow separately. See the [pipeline architecture](docs/proposed-pipeline.md) and [ITPP130B research](docs/munbyn-itpp130b-research.md).
+<p align="center">
+  <strong>A proper little fit for your shipping labels.</strong><br />
+  Drop in a PDF or paste its link. Give it a clean cut. Download a ready-to-print PDF or PNG.
+</p>
 
-## Website
+<p align="center">
+  <a href="#run-locally">Run locally</a> · <a href="HANDOFF.md">Pick up the work</a> · <a href="brand/README.md">Brand system</a> · <a href="deploy/README.md">Deploy</a> · <a href="docs/roadmap.md">Roadmap</a>
+</p>
 
-Use Node **24 or later**.
+---
+
+CropOtter turns oversized or awkward shipping-label PDFs into portrait **4 × 6 inch labels with at least ⅛ inch of white space on every side**. It preserves proportions, keeps vector text where possible, and asks for review when a crop is uncertain.
+
+The first website release is implemented and tested. **Production deployment to DigitalOcean and cropotter.com is still pending.** Start with [HANDOFF.md](HANDOFF.md) to continue locally.
+
+<table>
+  <tr>
+    <td width="73%"><img src="docs/images/desktop.png" alt="CropOtter desktop website with PDF upload and link input" /></td>
+    <td width="27%"><img src="docs/images/phone.png" alt="CropOtter small-phone layout" /></td>
+  </tr>
+</table>
+
+## A clean cut, start to finish
+
+- **Send it over.** Upload a PDF, drag and drop it, paste a public HTTPS PDF link, or try the included sample.
+- **Fine-tune the fit.** Automatic label detection, real PDF previews, crop movement/resizing, multiple regions, page skipping and rotation. Uncertain output stays behind a review acknowledgement.
+- **Take it away.** Download the combined PDF, individual PNGs at 203 or 300 DPI, or a ZIP with the PDF and every label image.
+- **Use your screen.** Fluid phone, tablet and desktop layouts, keyboard controls, touch controls, accessible crop sliders, and reduced-motion support.
+- **Keep it simple.** Uploaded files are processed in the browser. Direct links pass through a bounded server fetch. No accounts, database, label history or analytics.
+
+The Three.js label stack is a small decorative enhancement, with static artwork when graphics or motion are unavailable. Fonts, PDF workers and decoding assets are served locally. Exported shipping labels contain no CropOtter branding.
+
+## Run locally
+
+Install **Node 24 or newer**, then:
 
 ```sh
+git clone https://github.com/mrdewclau/cropotter.git
+cd cropotter
 npm ci
 npm run dev:web
 ```
 
-Open `http://127.0.0.1:4174`. For the production service:
+Open **http://127.0.0.1:4174**. Upload your own label or choose **Try a sample label**. The sample uses fictional recipient data.
+
+For the production service:
 
 ```sh
 npm run build:web
-PORT=8080 npm run start:web
+npm run start:web
 ```
 
-Uploads are processed in the browser. Pasted links use a bounded, public-HTTPS-only server fetch with DNS pinning and redirect validation; the service does not store PDFs or log input links. A local synthetic sample is included. The production build serves all engine assets and fonts locally, with no CDN dependency.
+The default port is **8080**; override it with the `PORT` environment variable. `/healthz` reports readiness. See [deployment instructions](deploy/README.md) for Docker, DigitalOcean and GoDaddy DNS.
 
-The approved identity is **CropOtter, direction 04 — The Mailroom Stamp**. Three.js enhances the decorative label stack; reduced motion and unavailable graphics use the static artwork. Product actions work independently of the scene.
+## Under the paper
 
-```sh
-npm run typecheck:web
-npm run test:web
-npm run fixtures
-npm run build:web
-npm run test:web:browser
-```
+| Part          | Location                                       | Job                                                                        |
+| ------------- | ---------------------------------------------- | -------------------------------------------------------------------------- |
+| Website       | [`apps/web`](apps/web)                         | React, TypeScript, Vite, Three.js, crop editor and downloads               |
+| Shared engine | [`packages/engine`](packages/engine)           | PDF analysis, selection, preparation, barcode evidence and raster export   |
+| Link service  | [`apps/web/server`](apps/web/server)           | HTTPS-only PDF fetching, DNS pinning, redirect checks and bounded delivery |
+| Production    | [`Dockerfile`](Dockerfile), [`deploy`](deploy) | Non-root, standalone Node service; no database required                    |
+| Identity      | [`brand`](brand)                               | Approved board, editable source, marks, fonts and design tokens            |
+| Decisions     | [`docs`](docs)                                 | Architecture, workflows, printer research and verification                 |
 
-See [website verification](docs/website-verification.md), [the website specification](docs/superpowers/specs/2026-10-21-cropotter-website.md), and [DigitalOcean deployment](deploy/README.md). Production hosting is DigitalOcean with GoDaddy DNS for cropotter.com. Deployment requires access to those accounts; repository configuration alone does not establish a live site.
+See the [engine API and CLI guide](docs/engine-api.md), [pipeline architecture](docs/proposed-pipeline.md), [user journey](docs/diagrams/README.md) and [MUNBYN ITPP130B research](docs/munbyn-itpp130b-research.md).
 
-## Run
-
-Use Node **24 or later**.
-
-```sh
-npm ci
-npm run build
-npm run fixtures
-npm run engine -- --input output/demo/letter-image.pdf --out output/label
-npm run harness
-```
-
-The engine harness opens at `http://127.0.0.1:4173`. Load a PDF or paste a direct PDF URL, inspect its analysis, prepare labels, and download exports. Its JSON crop control is a developer tool. Harness browser URLs need host CORS permission; upload the downloaded file when a URL is blocked. Node can fetch URLs without browser CORS restrictions. The customer website above has its own restricted link-fetch service.
-
-The CLI defaults to PDF, PNG, JPG, and a monochrome bitmap at 203 DPI. Options:
-
-```sh
-npm run engine -- --url 'https://example.com/label.pdf' --out output/label --format pdf,png --dpi 300
-npm run engine -- --input label.pdf --out output/review --analyze
-npm run engine -- --input label.pdf --out output/accepted --selection selections.json
-```
-
-Selections use zero-based page indexes and visible-page PDF points measured from the **top left**, after CropBox, UserUnit and page rotation are applied:
-
-```json
-[
-  {
-    "pageIndex": 0,
-    "region": { "x": 36, "y": 90, "width": 288, "height": 432 },
-    "rotation": 0
-  }
-]
-```
-
-Use multiple entries for multiple labels on a page. Explicitly include or skip every nonblank page, e.g. `{"pageIndex":1,"skip":true}`. Manual selections retain a review warning; downstream clients must obtain deliberate acceptance instead of treating them as automatic print jobs. CLI exits: `0` ready, `2` review required, `1` error. Review results with an explicit crop may still contain downloadable artifacts.
-
-## API
-
-```ts
-import { createNodeEngine } from "@crop-ship/engine/node";
-// Browser: createBrowserEngine({ assetBaseUrl: '/engine-assets/' })
-const engine = await createNodeEngine();
-try {
-  const result = await engine.prepare(pdfBytes); // or { url: directPdfUrl }
-  if (!result.prepared) {
-    // Show result.analysis and collect selections before calling prepare again.
-  } else {
-    for await (const artifact of engine.export(result.prepared, {
-      format: "png",
-      dpi: 203,
-    })) {
-      // Save artifact.data; inspect artifact.report before offering automatic printing.
-    }
-    const bitmap = await engine.thermalBitmap(
-      result.prepared,
-      result.prepared.labels[0].id,
-    );
-    // bitmap is pixels and metadata, not MUNBYN print commands.
-  }
-} finally {
-  await engine.dispose();
-}
-```
-
-Public operations are `analyze`, `prepare`, `export`, `thermalBitmap`, and `dispose`. Processing operations support an `AbortSignal` and emit progress. Work is serialized per engine instance. Export is an async iterator with resources released between artifacts; close abandoned iterators. Disposal aborts pending work, waits for active work to release its resources, and rejects future calls. Source bytes are copied and remain owned by the caller. Release prepared documents and artifact bytes when finished; no account storage is implemented.
-
-The core entry point accepts an `EngineRuntime` for host canvas, decoding, fetch, and asset access. The Node adapter uses `@napi-rs/canvas`; the browser adapter uses Canvas 2D. Serve the assets copied by `npm run assets` locally with the app: PDF worker, CMaps, fonts, PDF rendering WASM, and ZXing reader WASM. No CDN, AI service, or paid API is used. Browser processing needs a secure context (HTTPS or localhost) for hashing and workers.
-
-`PreparedDocument` contains the canonical PDF, versioned manifest, source digest, source-to-output label mapping, every source page decision, and validation report. Reports identify barcode checks by label, DPI and representation. Barcode evidence stores format, SHA-256 payload digest and bounds; it never contains decoded addresses or raw payloads. Do not mutate prepared PDF bytes or its manifest between preparation and export.
-
-## Output and review contract
-
-| Output             | Geometry / encoding                                                                                                                 |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Canonical PDF      | 288 × 432 points; all page boxes normalized; portrait; 9 point minimum white margin; vector/text preservation where possible        |
-| PNG / JPG, 203 DPI | 812 × 1218 pixels; 26 pixel minimum margin; density metadata                                                                        |
-| PNG / JPG, 300 DPI | 1200 × 1800 pixels; 38 pixel minimum margin; density metadata                                                                       |
-| Thermal bitmap     | Default 203 DPI; 1 bit/pixel, MSB first, 1 = black; `stride = ceil(width / 8)`; row padding bits white; threshold 128; no dithering |
-
-Aspect ratio is preserved. Raster output can be uniformly reduced slightly around the page center to meet the rounded pixel margin. JPG uses quality 98 and is a convenience export; use PDF/PNG or the monochrome path for printer integration. The CLI's `.pbm` is a diagnostic view of the same packed `.bin` bytes. Validated engine output with an intact byte checksum passes through unchanged, avoiding repeated shrinking and PDF nesting. Edited or externally generated PDFs are fitted again; stale metadata is not used to skip formatting. The checksum detects changes and is not a security signature.
-
-Automatic candidates are limited to native 4 × 6 pages, isolated matching image/Form rectangles, and clear framed regions. Raster segmentation supplies review suggestions. Instructions outside labels, overlapping boundaries, visible annotations, unknown boundaries, unreadable/changed/missing barcode evidence, or output margin regressions disable `autoPrintEligible`. Printable annotation appearances use a flagged 300 DPI raster fallback. No silent page loss: blank and intentionally skipped pages appear in the manifest.
-
-Code128, QR, PDF417 and Data Matrix have synthetic preservation tests through PDF rendering and monochrome output. The reader requires an isolated, unrotated symbol for MaxiCode; full-label MaxiCode localization is **not implemented** and a MaxiCode-only label requires review. Barcode evidence is limited to symbols the reader detects; a passing check does not prove an unsupported or undetected symbol is intact. Physical scans from the actual printer remain required.
-
-Defaults: 25 MiB input, 50 source pages, 100 output labels, 16 million pixels per render/embedded image, 30-second URL timeout. Oversized, malformed, encrypted and dynamic XFA PDFs produce typed errors. Signed query strings are preserved during fetching, and engine/CLI errors omit input URLs and sensitive source content. Native shells must bound their own URL access; do not expose the Node adapter as an unrestricted server-side URL proxy.
-
-For v1, executable page/Form content must be uncompressed or Flate-compressed without prediction, with a total decoded-content budget equal to the input byte limit. Inline images, Type3 font programs and tiling patterns are explicitly unsupported. Export a fresh PDF with standard fonts and separate image objects when these errors occur. Malformed dimensions and failed image decoders are rejected before a partial page can become automatic output.
-
-## Verification
+## Check the work
 
 ```sh
 npm run typecheck
-npm run build
+npm run typecheck:web
 npm test
+npm run test:web
+npm run fixtures
+npm run build:web
 npx playwright install --with-deps chromium firefox webkit
-npm run test:browser
+npm run test:web:browser
 ```
 
-Tests generate fake recipient data and real barcodes. They cover native and landscape-letter labels, instructions, multiple pages/labels, rotations, nonzero boxes/UserUnit, vector text, annotation fallback, malformed/encrypted/oversized input, cancellation, serialization, repeated conversion, actual image decode, white margins, density metadata, packed bits and barcode occurrence counts. Browser tests execute the same engine in Chromium, Firefox and WebKit and block external network requests during conversion.
+The recorded acceptance run passed **52 engine tests, 39 website/service tests and 43 browser checks**, including the original private supplied label. Browser coverage includes Chromium, Firefox, WebKit and emulated iPhone/Android contexts; responsive checks cover widths 320–2560 and enlarged text. Public CI uses synthetic files and skips the private-label checks. Read [website verification](docs/website-verification.md) for the exact scope and limitations.
 
-See [engine verification](docs/engine-verification.md) for results and remaining hardware acceptance. No customer PDF or signed URL belongs in source control; `.private/` and generated `output/` are ignored.
+## What comes next
+
+Publish the website on DigitalOcean and connect cropotter.com through GoDaddy. Then develop the Chrome extension, iOS app, Windows/macOS apps, and finally a validated direct-print path. Accounts, shared queues and Bluetooth printing are planned work. The current website gives users files to print through their usual PDF viewer. [Full roadmap →](docs/roadmap.md)
+
+## Made for the mailroom
+
+The approved identity is **04 — The Mailroom Stamp**: indigo ink, warm paper, postal orange, condensed headlines and a tactile wordmark. Explore the [complete brand sheet and editable source](brand/README.md).
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), keep examples synthetic, and include relevant validation with changes. Code and original project material are [MIT licensed](LICENSE); bundled fonts retain their included SIL Open Font Licenses, and dependencies retain their own licenses. The license does not grant trademark rights or imply endorsement.

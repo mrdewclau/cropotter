@@ -1,0 +1,37 @@
+{
+  "name": "CropOtter",
+  "domain": "cropotter.com",
+  "direction": "04 \u2014 The Mailroom Stamp",
+  "colors": {
+    "indigo": "#243A79",
+    "paper": "#F6F1E7",
+    "orange": "#D85C32",
+    "kraft": "#CDB693",
+    "ink": "#23262E",
+    "rule": "#CFC9BC",
+    "white": "#FFFFFF",
+    "muted": "#626776",
+    "mist": "#E8EAF1"
+  },
+  "typography": {
+    "display": "Barlow Condensed Bold",
+    "body": "DM Sans Regular / Bold",
+    "utility": "IBM Plex Mono Regular",
+    "cleanLogoCompanion": "Bungee Regular"
+  },
+  "voice": [
+    "Plain",
+    "Helpful",
+    "Warm"
+  ],
+  "clearSpace": {
+    "minimumMarkHeightFraction": 0.125
+  },
+  "minimumWidthPx": {
+    "fullStamp": 120,
+    "compactIcon": 24
+  },
+  "texturedStampMinimumWidthPx": 180,
+  "brandArtworkOnExportedShippingLabels": false,
+  "websiteMockup": "Static visual concept; not a working site"
+}

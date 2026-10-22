@@ -4,11 +4,17 @@ Implementation: `feat/website`, based on engine commit `4e9e8d6`. Verification d
 
 ## Completed checks
 
-- Website TypeScript check and 38 unit/service tests pass.
+- Engine TypeScript check and 52 engine tests pass. Website TypeScript check and 39 unit/service tests pass.
 - Production Vite client and standalone Node server build successfully. PDF workers, WASM, fonts and sample PDF are served locally.
-- A production Chromium run passed eight functional checks, including the original private supplied label, crop editing, multi-page output, cancellation, actual PDF/PNG/ZIP bytes, fallback graphics and responsive layout. Its remaining decorative-text contrast finding has been corrected; the full browser matrix is in progress.
+- The production browser matrix passed **43 checks with 2 intentional skips**, across desktop Chromium, Firefox, WebKit, iPhone SE WebKit and Pixel 7 Chromium. Every browser converted the original private supplied label. The two phone contexts skip the desktop-driven viewport sweep; each desktop browser exercises it. Actual PDF/PNG/ZIP bytes, crop review, cancellation, multi-page output, fallback graphics, responsive layout, keyboard focus and axe accessibility checks passed.
 - Production dependency audit reports zero known vulnerabilities after updating fflate to 0.8.3.
-- Docker multi-stage build passed; the final corrected image is rebuilding for container acceptance.
+- Final Docker image `cropotter:review` built successfully: local image ID `sha256:e4c7a88e468b6e1b27750bc419da70c17e9ab59fbad7880227f6df7a75139df9`. Container acceptance passed after the backend correction: health, security headers, Three.js enhancement, actual sample PDF conversion/download and iPhone Safari conversion/crop previews. The container ran as non-root with a read-only filesystem and loopback port binding. Synthetic desktop/phone screenshots are under `docs/images`. This is a local image ID, not a published registry digest.
+
+## Final independent review
+
+One material issue was found and fixed: the four-request limit previously released a slot after queuing PDF bytes, allowing slow clients to retain more outstanding responses. Slots now stay occupied until response finish/close, release exactly once, abort on disconnect and enforce a 30-second delivery timeout. A paused-client regression failed before the fix (fifth response returned 200), then passed (fifth response returns 429; disconnect releases a slot). All 39 website unit/service tests and the typecheck passed after the correction. The complete browser matrix preceded this backend-only correction; its frontend bytes are unchanged.
+
+The reviewer independently reran the paused-client regression and confirmed the finding resolved, with no remaining material issue in the fix. The review found no other material issue in URL policy, DNS pinning, redirect validation, stale-result protection, object URL cleanup, crop/page accounting or build configuration. Physical phone dragging/resizing and printer scans remain acceptance work; emulated phone tests tap controls and rotate a crop.
 
 ## Browser acceptance matrix
 

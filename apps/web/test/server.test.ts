@@ -131,6 +131,52 @@ describe("public PDF URL policy", () => {
 });
 
 describe("HTTP service", () => {
+  it("keeps response slots until slow readers finish or disconnect", async () => {
+    const fetchPdf = vi.fn(async () => new Uint8Array(25 * 1024 * 1024));
+    const server = createApp({ fetchPdf });
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+    const a = server.address();
+    if (!a || typeof a === "string") throw Error("address");
+    const port = a.port;
+    const clients: ReturnType<typeof httpRequest>[] = [];
+    async function pausedRequest() {
+      return new Promise<number>((resolve, reject) => {
+        const req = httpRequest(
+          {
+            hostname: "127.0.0.1",
+            port,
+            path: "/api/pdf",
+            method: "POST",
+            agent: false,
+            headers: { "Content-Type": "application/json" },
+          },
+          (res) => {
+            res.pause();
+            res.on("error", () => {});
+            resolve(res.statusCode!);
+          },
+        );
+        clients.push(req);
+        req.on("error", reject);
+        req.end(JSON.stringify({ url: "https://example.com/label.pdf" }));
+      });
+    }
+    try {
+      for (let i = 0; i < 4; i++) expect(await pausedRequest()).toBe(200);
+      expect(await pausedRequest()).toBe(429);
+      expect(fetchPdf).toHaveBeenCalledTimes(4);
+      clients[0].destroy();
+      // Let the server observe the disconnected response before retrying.
+      await new Promise((r) => setTimeout(r, 30));
+      expect(await pausedRequest()).toBe(200);
+      expect(fetchPdf).toHaveBeenCalledTimes(5);
+    } finally {
+      clients.forEach((req) => req.destroy());
+      server.closeAllConnections();
+      await new Promise<void>((r) => server.close(() => r()));
+    }
+  });
+
   it("returns an error for an oversized chunked body without dropping the response socket", async () => {
     const server = createApp();
     await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));

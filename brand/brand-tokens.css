@@ -1,0 +1,13 @@
+/* CropOtter — Mailroom Stamp / V1 */
+:root {
+  --cropotter-indigo: #243A79;
+  --cropotter-paper: #F6F1E7;
+  --cropotter-orange: #D85C32;
+  --cropotter-kraft: #CDB693;
+  --cropotter-ink: #23262E;
+  --cropotter-rule: #CFC9BC;
+  --cropotter-display: "Barlow Condensed", sans-serif;
+  --cropotter-body: "DM Sans", sans-serif;
+  --cropotter-mono: "IBM Plex Mono", monospace;
+}
+/* Load the bundled OFL font files with your site's preferred font workflow. */

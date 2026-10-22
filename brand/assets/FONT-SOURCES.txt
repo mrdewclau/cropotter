@@ -1,0 +1,7 @@
+All four families are from Google Fonts and include their SIL Open Font License files.
+Barlow Condensed: https://github.com/google/fonts/tree/main/ofl/barlowcondensed
+DM Sans: https://github.com/google/fonts/tree/main/ofl/dmsans
+IBM Plex Mono: https://github.com/google/fonts/tree/main/ofl/ibmplexmono
+Bungee: https://github.com/google/fonts/tree/main/ofl/bungee
+
+DM Sans static weights 400 and 700 were instantiated at optical size 14 with fontTools. Family/style names were normalized to distinguish the static instances. These copies are supplied alongside the OFL license.

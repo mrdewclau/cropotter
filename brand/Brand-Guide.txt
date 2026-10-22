@@ -1,0 +1,52 @@
+CROPOTTER — BRAND SYSTEM V1
+Direction 04: The Mailroom Stamp
+Domain: cropotter.com
+
+IDEA
+A practical label-formatting tool with the character of a well-used mailroom stamp. Condensed lettering, registration corners, indigo ink and warm paper connect the identity to the job it does.
+
+PRIMARY MARK
+Use CropOtter-stamp-indigo.png for larger, tactile brand moments. It is a transparent raster artwork, not a vector master. Its ink texture is intentional. Preserve the proportions and leave at least one eighth of the mark height clear on all sides.
+
+CLEAN COMPANIONS
+CropOtter-clean-stamp.svg is the clean, outlined vector companion. It uses Bungee lettering to carry the same stacked stamp direction into small digital uses. CropOtter-clean-stamp-reverse.svg is the warm-paper version for indigo backgrounds. CropOtter-CO-icon.svg is for browser tabs and compact brand placements. The clean companion is a redraw, not an exact tracing of the textured mark.
+
+SIZE
+Use the clean version below 180 px wide. Suggested minimum: full clean stamp 120 px; CO icon 24 px. Check the actual output on the intended screen or print surface.
+
+COLORS
+Indigo Ink    #243A79    Primary brand color, buttons and large type
+Warm Paper    #F6F1E7    Primary background
+Postal Orange #D85C32    Accent rules, tabs and large emphasis
+Parcel Kraft  #CDB693    Supporting backgrounds and physical mockups
+Carbon        #23262E    Reading text and utility details
+Use indigo or carbon for reading text on paper. Use white or warm paper text on indigo. Keep orange to emphasis rather than small body text.
+
+TYPE
+Barlow Condensed Bold: headlines and campaign copy
+DM Sans Regular / Bold: instructions, body copy, buttons and navigation
+IBM Plex Mono Regular: sizes, formats, numbered steps and status details
+Bungee Regular: clean logo companion lettering, not the general headline font
+Font files and their OFL licenses are included under assets. DM Sans static instances were generated from the Google Fonts variable font; naming metadata identifies their actual styles.
+
+VOICE
+Plain, helpful and warm. Tell people what to do and what happened.
+Examples: Drop your PDF here. Looking good. Your label is ready.
+Primary line: Your labels. Ready to go.
+Supporting line: Less fuss. More send.
+
+GRAPHICS
+Crop corners, light dividing rules, label-shaped fields and occasional postal stripes. Let warm paper provide most of the space. Use texture for brand artwork; keep controls and reading areas clean.
+
+APPLICATIONS
+The website shown is a static design concept, not a working implementation. It reflects the planned first release: upload a PDF or paste a direct PDF link, format it, then download a PDF and/or PNG. Barcode bars and address lines in the mockup are fictional illustration only.
+Do not add brand decoration to exported shipping labels, barcode data or their required quiet zones. Packaging graphics shown are brand application concepts, not additional product functionality.
+
+FILES
+CropOtter-Brand-Sheet.png: finished 2400 x 4000 visual board
+CropOtter-Brand-Sheet.tsrct: editable Tesseract project, with fonts and the raster logo embedded
+brand-tokens.json: color, typography and usage tokens
+assets/: logo assets, fonts and font licenses
+build_brand_sheet.py: composition authoring source
+
+Approved identity system v1. The working website is in apps/web; the board retains the original concept illustrations.

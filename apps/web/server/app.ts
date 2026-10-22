@@ -138,24 +138,37 @@ export function createApp(options: AppOptions = {}) {
         tokens--;
         active++;
         const abort = new AbortController();
+        let deliveryTimer: ReturnType<typeof setTimeout> | undefined;
+        let released = false;
+        const release = () => {
+          if (released) return;
+          released = true;
+          active--;
+          clearTimeout(deliveryTimer);
+          res.off("finish", release);
+          res.off("close", close);
+        };
         const close = () => {
-          if (!res.writableEnded) abort.abort();
+          abort.abort();
+          release();
         };
         res.once("close", close);
-        try {
-          const bytes = await fetchPdf(body.url, { signal: abort.signal });
-          if (res.destroyed) return;
-          res.writeHead(200, {
-            "Content-Type": "application/pdf",
-            "Content-Length": bytes.length,
-            "Cache-Control": "no-store",
-            "Content-Disposition": 'attachment; filename="label.pdf"',
-          });
-          res.end(bytes);
-        } finally {
-          active--;
-          res.off("close", close);
+        res.once("finish", release);
+        const bytes = await fetchPdf(body.url, { signal: abort.signal });
+        if (res.destroyed) {
+          release();
+          return;
         }
+        // A queued response still owns its slot until delivery finishes.
+        deliveryTimer = setTimeout(() => res.destroy(), 30000);
+        deliveryTimer.unref();
+        res.writeHead(200, {
+          "Content-Type": "application/pdf",
+          "Content-Length": bytes.length,
+          "Cache-Control": "no-store",
+          "Content-Disposition": 'attachment; filename="label.pdf"',
+        });
+        res.end(bytes);
         return;
       }
       if (req.method !== "GET" && req.method !== "HEAD") {

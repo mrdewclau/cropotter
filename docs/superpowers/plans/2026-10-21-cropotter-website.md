@@ -34,8 +34,8 @@
 **Interfaces:** `validatePdfUrl(value: string): URL`; `fetchPublicPdf(value: string, options?): Promise<Uint8Array>`; `createApp(options?): http.Server`; POST /api/pdf returns application/pdf or sanitized JSON errors; GET /healthz returns readiness.
 
 - [ ] Write and run failing tests: reject private/credentialed/non-HTTPS URLs, mixed private DNS, unsafe redirects, oversize/time limits; return valid PDF through bounded transport; reject static traversal.
-- [ ] Implement the pinned-connection PDF fetcher and HTTP application, with injection at DNS/transport for deterministic policy tests.
-- [ ] Add build scripts and a multi-stage Node 24 Docker deployment; run service tests and commit.
+- [x] Implement the pinned-connection PDF fetcher and HTTP application, with injection at DNS/transport for deterministic policy tests.
+- [x] Add build scripts and a multi-stage Node 24 Docker deployment; run service tests and commit.
 
 ### Task 2: Working conversion experience
 
@@ -44,8 +44,8 @@
 **Interfaces:** `convert(bytes, selections, dpi, options): Promise<Conversion>` carries the engine result, image artifacts and prepared PDF. UI owns cancellation generations and object URL lifetimes. Persistent anchors download PDF/PNG/ZIP. Server link input consumes Task 1's endpoint.
 
 - [ ] Write and run failing input/export tests and browser conversion acceptance test.
-- [ ] Add file/drop/link/sample input; actual engine progress; cancel/retry; image/page/DPI selection; reviewed warning gating; persistent PDF/PNG/ZIP downloads; optional native file share.
-- [ ] Verify real conversion with synthetic fixtures and the original private supplied label; commit.
+- [x] Add file/drop/link/sample input; actual engine progress; cancel/retry; image/page/DPI selection; reviewed warning gating; persistent PDF/PNG/ZIP downloads; optional native file share.
+- [x] Verify real conversion with synthetic fixtures and the original private supplied label; commit.
 
 ### Task 3: Crop review
 
@@ -54,7 +54,7 @@
 **Interfaces:** editor takes source bytes plus analysis and existing selections, returns `Selection[]`; source coordinates follow engine top-left visible-page points; rotation affects the output.
 
 - [ ] Write and run failing crop geometry tests (bounds, minimum size, keyboard/pointer deltas) and review browser test.
-- [ ] Implement responsive PDF source preview; drag/resize; keyboard movement/resize; accessible sliders; multiple regions; explicit skip; page/rotation controls; apply/cancel.
+- [x] Implement responsive PDF source preview; drag/resize; keyboard movement/resize; accessible sliders; multiple regions; explicit skip; page/rotation controls; apply/cancel.
 - [ ] Verify no page loss, touch controls and review acknowledgement; commit.
 
 ### Task 4: Identity and responsive Three.js refinement
@@ -63,9 +63,9 @@
 
 **Interfaces:** `mountScene(host): Promise<() => void>` enhances static art without owning product state. It never intercepts scroll, observes reduced motion/visibility/resize, caps DPR at 1.5, and returns cleanup.
 
-- [ ] Apply the approved typography, artwork and palette to the full page; add useful how-to, FAQ and privacy copy.
-- [ ] Implement the Three.js enhancement and static fallback.
-- [ ] Run layout and accessibility checks in Chromium/Firefox/WebKit, touch-phone coverage, reduced motion and no-WebGL scenarios; inspect screenshots and commit.
+- [x] Apply the approved typography, artwork and palette to the full page; add useful how-to, FAQ and privacy copy.
+- [x] Implement the Three.js enhancement and static fallback.
+- [x] Run layout and accessibility checks in Chromium/Firefox/WebKit, touch-phone coverage, reduced motion and no-WebGL scenarios; inspect screenshots and commit.
 
 ### Task 5: Production review, deployment and domain
 
@@ -73,6 +73,8 @@
 
 **Interfaces:** Docker image exposes PORT (default 8080); /healthz readiness; deploy configuration declares cropotter.com/www without affecting email DNS.
 
-- [ ] Run full typecheck, unit and browser suites; production build and service checks. Dispatch one fresh whole-branch reviewer per executing-plans, fix material findings with regression coverage.
+- [x] Run full typecheck, unit and browser suites; production build and service checks. Dispatch one fresh whole-branch reviewer per executing-plans, fix material findings with regression coverage.
 - [ ] Deploy using the user's connected DigitalOcean account, verify health and an actual live label download, and configure the verified target at GoDaddy while preserving MX/TXT and unrelated records.
 - [ ] Verify HTTPS and canonical host, record exact deployment evidence, and report any access blocker honestly. No substitute hosting.
+
+Execution notes: implementation was consolidated into one initial website commit. The initial server RED and final slow-client regression RED were observed. Input/crop tests were added alongside implementation; their separate planned RED steps were not independently recorded. Crop touch controls and review gating pass in emulation; physical touch dragging/resizing remains acceptance work. Tasks 1–4 are implemented. Deployment is blocked on account/browser control, and the user has chosen a public GitHub handoff for local continuation. See `HANDOFF.md` and `docs/website-verification.md` for the current checkpoint.
