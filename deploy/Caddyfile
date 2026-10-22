@@ -1,0 +1,8 @@
+cropotter.com {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:8080
+}
+
+www.cropotter.com {
+  redir https://cropotter.com{uri} permanent
+}

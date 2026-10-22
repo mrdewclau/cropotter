@@ -8,3 +8,4 @@ playwright-report/
 output/
 tools/engine-harness/public/engine-assets/
 *.log
+apps/web/public/engine-assets/

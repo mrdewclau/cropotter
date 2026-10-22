@@ -17,16 +17,35 @@
     "harness": "npm run assets && vite --config tools/engine-harness/vite.config.ts",
     "engine": "tsx tools/engine-harness/cli.ts",
     "fixtures": "tsx tools/engine-harness/generate-fixtures.ts",
-    "format:check": "prettier --check \"packages/**/*.ts\" \"tools/**/*.{ts,mjs,html}\" \"*.ts\""
+    "format:check": "prettier --check \"packages/**/*.ts\" \"tools/**/*.{ts,mjs,html}\" \"*.ts\"",
+    "dev:web": "vite --config apps/web/vite.config.ts",
+    "build:web": "node apps/web/scripts/copy-assets.mjs && vite build --config apps/web/vite.config.ts && node apps/web/scripts/build-server.mjs",
+    "start:web": "node apps/web/dist/server/server.mjs",
+    "test:web": "vitest run --config apps/web/vitest.config.ts",
+    "test:web:browser": "playwright test --config apps/web/playwright.config.ts",
+    "typecheck:web": "tsc --noEmit -p apps/web/tsconfig.json"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@napi-rs/canvas": "1.0.13",
     "@playwright/test": "1.64.1",
     "@types/node": "^24.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.184.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "esbuild": "^0.27.4",
     "prettier": "3.8.3",
     "tsx": "4.23.15",
     "typescript": "7.0.2",
     "vite": "8.3.5",
     "vitest": "5.0.5"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "ipaddr.js": "^2.2.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "three": "^0.184.0"
   }
 }

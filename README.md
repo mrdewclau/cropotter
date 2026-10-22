@@ -1,8 +1,38 @@
-# crop/ship engine
+# CropOtter
 
 Shared TypeScript label processing for Node and modern browsers. It accepts a PDF file or a direct HTTP(S) PDF URL, extracts an unambiguous shipping label, and prepares exact **4 × 6 inch output with at least 1/8 inch white margins**. Uncertain layouts return a review decision and can be cropped explicitly.
 
-This repository implements the engine milestone. Accounts, shared queues, extension/desktop/mobile packaging, MUNBYN command encoding, Bluetooth transport and physical print acceptance follow separately. See the [pipeline architecture](docs/proposed-pipeline.md) and [ITPP130B research](docs/munbyn-itpp130b-research.md).
+The CropOtter website adds PDF upload, drag and drop, direct HTTPS links, automatic formatting, an accessible crop editor, and PDF/PNG/ZIP downloads. Accounts, shared queues, extension/desktop/mobile packaging, MUNBYN command encoding, Bluetooth transport and physical print acceptance follow separately. See the [pipeline architecture](docs/proposed-pipeline.md) and [ITPP130B research](docs/munbyn-itpp130b-research.md).
+
+## Website
+
+Use Node **24 or later**.
+
+```sh
+npm ci
+npm run dev:web
+```
+
+Open `http://127.0.0.1:4174`. For the production service:
+
+```sh
+npm run build:web
+PORT=8080 npm run start:web
+```
+
+Uploads are processed in the browser. Pasted links use a bounded, public-HTTPS-only server fetch with DNS pinning and redirect validation; the service does not store PDFs or log input links. A local synthetic sample is included. The production build serves all engine assets and fonts locally, with no CDN dependency.
+
+The approved identity is **CropOtter, direction 04 — The Mailroom Stamp**. Three.js enhances the decorative label stack; reduced motion and unavailable graphics use the static artwork. Product actions work independently of the scene.
+
+```sh
+npm run typecheck:web
+npm run test:web
+npm run fixtures
+npm run build:web
+npm run test:web:browser
+```
+
+See [website verification](docs/website-verification.md), [the website specification](docs/superpowers/specs/2026-10-21-cropotter-website.md), and [DigitalOcean deployment](deploy/README.md). Production hosting is DigitalOcean with GoDaddy DNS for cropotter.com. Deployment requires access to those accounts; repository configuration alone does not establish a live site.
 
 ## Run
 
@@ -16,7 +46,7 @@ npm run engine -- --input output/demo/letter-image.pdf --out output/label
 npm run harness
 ```
 
-The harness opens at `http://127.0.0.1:4173`. Load a PDF or paste a direct PDF URL, inspect its analysis, prepare labels, and download exports. Its JSON crop control is a developer tool. Browser URLs need host CORS permission; upload the downloaded file when a URL is blocked. Node can fetch URLs without browser CORS restrictions. No public URL proxy is included.
+The engine harness opens at `http://127.0.0.1:4173`. Load a PDF or paste a direct PDF URL, inspect its analysis, prepare labels, and download exports. Its JSON crop control is a developer tool. Harness browser URLs need host CORS permission; upload the downloaded file when a URL is blocked. Node can fetch URLs without browser CORS restrictions. The customer website above has its own restricted link-fetch service.
 
 The CLI defaults to PDF, PNG, JPG, and a monochrome bitmap at 203 DPI. Options:
 
@@ -29,7 +59,13 @@ npm run engine -- --input label.pdf --out output/accepted --selection selections
 Selections use zero-based page indexes and visible-page PDF points measured from the **top left**, after CropBox, UserUnit and page rotation are applied:
 
 ```json
-[{"pageIndex":0,"region":{"x":36,"y":90,"width":288,"height":432},"rotation":0}]
+[
+  {
+    "pageIndex": 0,
+    "region": { "x": 36, "y": 90, "width": 288, "height": 432 },
+    "rotation": 0
+  }
+]
 ```
 
 Use multiple entries for multiple labels on a page. Explicitly include or skip every nonblank page, e.g. `{"pageIndex":1,"skip":true}`. Manual selections retain a review warning; downstream clients must obtain deliberate acceptance instead of treating them as automatic print jobs. CLI exits: `0` ready, `2` review required, `1` error. Review results with an explicit crop may still contain downloadable artifacts.
@@ -37,7 +73,7 @@ Use multiple entries for multiple labels on a page. Explicitly include or skip e
 ## API
 
 ```ts
-import { createNodeEngine } from '@crop-ship/engine/node';
+import { createNodeEngine } from "@crop-ship/engine/node";
 // Browser: createBrowserEngine({ assetBaseUrl: '/engine-assets/' })
 const engine = await createNodeEngine();
 try {
@@ -45,10 +81,16 @@ try {
   if (!result.prepared) {
     // Show result.analysis and collect selections before calling prepare again.
   } else {
-    for await (const artifact of engine.export(result.prepared, { format: 'png', dpi: 203 })) {
+    for await (const artifact of engine.export(result.prepared, {
+      format: "png",
+      dpi: 203,
+    })) {
       // Save artifact.data; inspect artifact.report before offering automatic printing.
     }
-    const bitmap = await engine.thermalBitmap(result.prepared, result.prepared.labels[0].id);
+    const bitmap = await engine.thermalBitmap(
+      result.prepared,
+      result.prepared.labels[0].id,
+    );
     // bitmap is pixels and metadata, not MUNBYN print commands.
   }
 } finally {
@@ -64,12 +106,12 @@ The core entry point accepts an `EngineRuntime` for host canvas, decoding, fetch
 
 ## Output and review contract
 
-| Output | Geometry / encoding |
-|---|---|
-| Canonical PDF | 288 × 432 points; all page boxes normalized; portrait; 9 point minimum white margin; vector/text preservation where possible |
-| PNG / JPG, 203 DPI | 812 × 1218 pixels; 26 pixel minimum margin; density metadata |
-| PNG / JPG, 300 DPI | 1200 × 1800 pixels; 38 pixel minimum margin; density metadata |
-| Thermal bitmap | Default 203 DPI; 1 bit/pixel, MSB first, 1 = black; `stride = ceil(width / 8)`; row padding bits white; threshold 128; no dithering |
+| Output             | Geometry / encoding                                                                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Canonical PDF      | 288 × 432 points; all page boxes normalized; portrait; 9 point minimum white margin; vector/text preservation where possible        |
+| PNG / JPG, 203 DPI | 812 × 1218 pixels; 26 pixel minimum margin; density metadata                                                                        |
+| PNG / JPG, 300 DPI | 1200 × 1800 pixels; 38 pixel minimum margin; density metadata                                                                       |
+| Thermal bitmap     | Default 203 DPI; 1 bit/pixel, MSB first, 1 = black; `stride = ceil(width / 8)`; row padding bits white; threshold 128; no dithering |
 
 Aspect ratio is preserved. Raster output can be uniformly reduced slightly around the page center to meet the rounded pixel margin. JPG uses quality 98 and is a convenience export; use PDF/PNG or the monochrome path for printer integration. The CLI's `.pbm` is a diagnostic view of the same packed `.bin` bytes. Validated engine output with an intact byte checksum passes through unchanged, avoiding repeated shrinking and PDF nesting. Edited or externally generated PDFs are fitted again; stale metadata is not used to skip formatting. The checksum detects changes and is not a security signature.
 

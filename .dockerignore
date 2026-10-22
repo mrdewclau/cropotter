@@ -1,0 +1,12 @@
+.git
+node_modules
+**/node_modules
+**/dist
+.private
+.superpowers
+output
+test-results
+playwright-report
+tools/engine-harness/public/engine-assets
+apps/web/public/engine-assets
+*.log
