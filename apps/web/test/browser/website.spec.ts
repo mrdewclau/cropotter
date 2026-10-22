@@ -537,6 +537,34 @@ test("passes accessibility checks and preserves visible keyboard focus", async (
   expect(result.violations).toEqual([]);
 });
 
+test("keeps the PDF link field focus ring inside its bounded pane", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("tab", { name: "Paste a link" }).click();
+  await page.keyboard.press("Tab");
+  const field = page.getByLabel("Your direct PDF link");
+  await expect(field).toBeFocused();
+  const clearance = await field.evaluate((el) => {
+    const box = el.getBoundingClientRect(),
+      css = getComputedStyle(el);
+    const extent = parseFloat(css.outlineWidth) + parseFloat(css.outlineOffset);
+    let left = Infinity,
+      right = Infinity;
+    for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+      const style = getComputedStyle(parent);
+      if (/hidden|auto|scroll|clip/.test(style.overflowX)) {
+        const pane = parent.getBoundingClientRect();
+        left = Math.min(left, box.left - extent - pane.left);
+        right = Math.min(right, pane.right - box.right - extent);
+      }
+    }
+    return { left, right };
+  });
+  expect(clearance.left).toBeGreaterThanOrEqual(0);
+  expect(clearance.right).toBeGreaterThanOrEqual(0);
+});
+
 test("keeps download-panel focus outlines inside the clipped pane", async ({
   page,
 }) => {

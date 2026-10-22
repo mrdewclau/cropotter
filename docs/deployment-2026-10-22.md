@@ -27,3 +27,7 @@ Final live dropdown-spacing and focus regression: **2/2 passed**, desktop Chromi
 Local image `sha256:26939031cb058f35f96b1b8af424462cf006e624cef9cfca9f09bfe9d2862e69`, tag `cropotter:release-20261022-social`. Client CSS `index-BQvLTEBB.css`, entry `index-DMihfW6m.js`. Static share image and downloadable MP4 are under `/share/`, referenced in initial HTML metadata. The service supplies MP4 MIME and byte ranges. Upload badge glyph is centered. Rollback image: `cropotter:before-social-20261022`; use the same retag/Compose procedure. DNS/proxy/unrelated services remain unchanged.
 
 Live HTTPS preview/centering acceptance: **3 passed, 1 expected compact-phone badge skip**. Direct public MP4 playback was visually checked in the in-app browser. Container health verified. This is not an actual iMessage share test.
+
+Global boxed-control focus correction: local image `sha256:5e7d033a15fb834ffbb3a6098772875b9fa92255a4c8ac59937c195dd6b520a5`, tag `cropotter:release-20261022-global-focus`, CSS `index-D7xNrZVd.css`, entry `index-0i3yuuQ1.js`. Rollback image `cropotter:before-global-focus-20261022`; same Compose rollback procedure. Fix extends inset outlines to boxed controls across the app, including the PDF-link form.
+
+Live global-focus acceptance: **4/4 passed** across Chromium and iPhone WebKit emulation for PDF-link and download controls. The focused link field was visually checked on the live site; proof is `docs/images/link-focus.png`. Container healthy.

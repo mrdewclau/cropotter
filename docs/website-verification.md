@@ -84,3 +84,9 @@ Website typecheck, production build and **41/41 unit/service tests** passed. MP4
 The generated PNG and portable Tesseract animation/filmstrip were visually reviewed. FFprobe confirms 1200×630, 7 seconds, H.264/yuv420p and no audio; combined preview media are below 10 MB. Actual iMessage sending/autoplay remains unverified. See [preview notes and prompt](share-preview.md).
 
 Live HTTPS preview/centering acceptance: **3 passed, 1 expected compact-phone badge skip**. Direct public MP4 playback was visually checked in the in-app browser. Container health verified. This is not an actual iMessage share test.
+
+## Global boxed-control focus correction — 2026-10-22
+
+The PDF-link input's focus outline was clipped 7px on both horizontal sides by its bounded source pane. A live regression failed before the fix. Boxed controls now keep their focus outlines inside their own borders throughout the app, rather than limiting that treatment to result actions. Text-link styles retain their separate treatment. Production build passed; focused browser regressions and axe accessibility checks passed **6/6** in Chromium and iPhone WebKit emulation. No layout geometry or conversion logic changed.
+
+Live global-focus acceptance: **4/4 passed** across Chromium and iPhone WebKit emulation for PDF-link and download controls. The focused link field was visually checked on the live site; proof is `docs/images/link-focus.png`. Container healthy.

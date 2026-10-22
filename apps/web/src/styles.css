@@ -2946,8 +2946,12 @@ body,
     padding: 6px;
   }
 }
-/* Keep keyboard focus visible within the bounded download pane. */
-.result-actions :focus-visible {
+/* Box controls keep the whole focus ring inside bounded app panes. */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+.result-actions a:focus-visible {
   outline-offset: -4px;
 }
 .resolution select {

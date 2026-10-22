@@ -76,3 +76,5 @@ PNG resolution uses a consistent 18px chevron, inset 14px from the right edge, w
 ## Social link preview and upload badge — 2026-10-22
 
 The homepage includes static Open Graph/Twitter metadata for a generated branded PNG and a silent crop-process MP4. Both are public under `/share/`; editable motion source is in `brand/share-motion`. See `docs/share-preview.md` for prompt, dimensions, Apple guidance and actual-device limits. MP4 serving includes correct MIME and byte-range/HEAD support for Safari; resources are under Apple's recommended budget. Product files remain unbranded. Upload badge uses CSS grid to center its glyph (prior flex override left it 9px off-center). Preserve compact mobile behavior that intentionally hides the badge.
+
+Focus outlines for boxed controls (buttons, inputs, selects and summaries) are inset globally. The earlier download-only rule missed the PDF-link form, whose hidden-overflow source pane clipped both sides by 7px. Keep text-link treatments separate and preserve visible keyboard focus throughout the shell.
