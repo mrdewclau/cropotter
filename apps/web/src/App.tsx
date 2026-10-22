@@ -285,7 +285,7 @@ export function App() {
           <section
             id="converter"
             ref={tool}
-            className={`converter ${result && !busy ? "has-result" : ""}`}
+            className={`converter ${result && !busy ? "has-result" : ""} ${!result && !busy ? "has-intake" : ""}`}
             aria-label="Label formatter"
             aria-busy={!!busy}
             tabIndex={-1}

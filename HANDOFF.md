@@ -1,6 +1,6 @@
 # Pick up CropOtter here
 
-Last updated: **2026-10-21 (America/New_York)**. The public repository is deployed on DigitalOcean and GoDaddy DNS points cropotter.com to it. See `docs/deployment-2026-10-21.md` for the production record.
+Last updated: **2026-10-22 (America/New_York)**. The public repository is deployed on DigitalOcean and GoDaddy DNS points cropotter.com to it. See `docs/deployment-2026-10-22.md` for the latest production record.
 
 ## Continue locally
 
@@ -18,7 +18,7 @@ The user's global preference is a viewport-fitting app shell for EVERYTHING, wit
 - Exact portrait 4 × 6 inch output, proportions preserved, minimum ⅛ inch white margin on every side. No branding added to output.
 - 203/300 DPI images, all-label ZIP, multi-page decisions, rotation, explicit skipping, manual-review acknowledgement, cancel/retry and stale-job protection.
 - Approved CropOtter identity **04 — The Mailroom Stamp**, complete brand board, editable Tesseract source, clean vector companions, fonts and design tokens under `brand/`.
-- Fluid 320–2560 CSS-pixel layouts, large text, keyboard controls, phone controls, Three.js decoration and static reduced-motion/no-WebGL fallback.
+- Fluid 320–2560 CSS-pixel layouts, large text, keyboard controls, phone controls, Three.js process demonstration and static reduced-motion/no-WebGL fallback.
 - Standalone Node service and multi-stage Docker build; local engine assets and fonts; readiness route; Docker Compose and Caddy examples.
 - URL proxy rejects private addresses and private redirects, validates all DNS answers, pins the selected address, limits bytes/time/concurrency and bounds slow response delivery. Files/links are never persisted.
 
@@ -60,3 +60,7 @@ Cloud account queues, Chrome capture and native apps are future milestones. A sh
 - `brand/`: approved visual identity; `docs/images/`: synthetic website screenshots.
 
 Keep this file current when deployment or acceptance status changes.
+
+## Latest visual revision — 2026-10-22
+
+Replaced the tiny floating stamp with a readable synthetic full-page PDF → orange crop → finished 4 × 6 label sequence. Equal-height upload and explanation cards align on desktop; the navy demonstration board has synchronized captions, steps and Pause/Play. Reduced-motion and unavailable/lost WebGL use a fitted static label. Compact phone layouts preserve the upload workspace; selecting the link form prioritizes that form on narrow/short screens. The user has not yet reviewed this revision. Website unit/service tests: 39/39; typecheck and production build passed. Final production-build browser suite: 21 passed, 3 expected skips. See verification notes for live checks.

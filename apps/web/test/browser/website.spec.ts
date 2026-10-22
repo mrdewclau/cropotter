@@ -61,6 +61,10 @@ test("keeps the single-tool workspace and downloads inside the viewport", async 
     expect(
       await guide.evaluate((el) => el.scrollHeight <= el.clientHeight + 1),
     ).toBe(true);
+    await page.getByRole("tab", { name: "Paste a link" }).click();
+    await inView(page.getByLabel("Your direct PDF link"));
+    await inView(page.getByRole("button", { name: "Format link" }));
+    await page.getByRole("tab", { name: "Upload PDF" }).click();
     await page.getByRole("button", { name: "Try a sample label" }).click();
     await ready(page);
     await fits();
@@ -91,7 +95,7 @@ test("keeps the single-tool workspace and downloads inside the viewport", async 
   }
 });
 
-test("pairs the upload with an animated explanation inside the workspace", async ({
+test("demonstrates the PDF crop transformation in aligned panels and can pause it", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -101,19 +105,40 @@ test("pairs the upload with an animated explanation inside the workspace", async
   });
   await expect(guide).toBeVisible();
   await expect(
-    guide.getByRole("heading", { name: /FROM PDF TO/ }),
+    guide.getByRole("heading", { name: /A FULL PAGE IN/ }),
   ).toBeVisible();
   const drop = await page
     .getByRole("button", { name: /Drop your PDF here/ })
     .boundingBox();
   const explanation = await guide.boundingBox();
   expect(explanation!.x).toBeGreaterThanOrEqual(drop!.x + drop!.width);
+  const inputPanel = await page.locator(".intake-input").boundingBox();
+  expect(Math.abs(inputPanel!.y - explanation!.y)).toBeLessThan(2);
+  expect(Math.abs(inputPanel!.height - explanation!.height)).toBeLessThan(2);
   const canvas = guide.locator(".three-canvas");
   await expect(canvas).toHaveCount(1);
   const still = await canvas.screenshot();
   await expect
     .poll(async () => Buffer.compare(still, await canvas.screenshot()))
     .not.toBe(0);
+  await expect(guide.locator(".demo-stage")).toHaveAttribute(
+    "data-phase",
+    "2",
+    { timeout: 12000 },
+  );
+  await guide.getByRole("button", { name: "Pause demonstration" }).click();
+  await expect(
+    guide.getByRole("button", { name: "Play demonstration" }),
+  ).toBeVisible();
+  const pausedFrame = await canvas.screenshot();
+  await page.waitForTimeout(350);
+  expect((await canvas.screenshot()).equals(pausedFrame)).toBe(true);
+  await guide.getByRole("button", { name: "Play demonstration" }).click();
+  await expect(guide.locator(".demo-stage")).toHaveAttribute(
+    "data-phase",
+    "3",
+    { timeout: 12000 },
+  );
 });
 
 test("opens help and privacy on demand without leaving the workspace", async ({
@@ -323,6 +348,7 @@ test("recovers from a file that is not a PDF", async ({ page }) => {
 });
 
 test("converts with reduced motion and without WebGL", async ({ page }) => {
+  await page.setViewportSize({ width: 568, height: 320 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() =>
     Object.defineProperty(window, "WebGL2RenderingContext", {
@@ -335,6 +361,12 @@ test("converts with reduced motion and without WebGL", async ({ page }) => {
     page.getByRole("button", { name: /Drop your PDF here/ }),
   ).toBeVisible();
   await expect(page.locator(".scene-fallback")).toBeVisible();
+  const fallback = await page.locator(".demo-static-label").boundingBox();
+  const scene = await page.locator(".hero-scene").boundingBox();
+  expect(fallback!.height).toBeLessThanOrEqual(scene!.height);
+  expect(fallback!.y + fallback!.height).toBeLessThanOrEqual(
+    scene!.y + scene!.height + 1,
+  );
   await expect(page.locator(".three-canvas")).toHaveCount(0);
   await page.getByRole("button", { name: "Try a sample label" }).click();
   await ready(page);

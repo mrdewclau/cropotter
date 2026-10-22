@@ -6,7 +6,7 @@ This release runs as a standalone Node 24 service in a non-root Docker container
 
 Live at **https://cropotter.com**, on existing DigitalOcean Droplet `597065633` (`fww-desk`, NYC3, `138.197.81.94`). Checkout: `/opt/cropotter`. Compose project: `cropotter`. Caddy config: `/etc/caddy/Caddyfile`; pre-install default saved as `/etc/caddy/Caddyfile.before-cropotter`. Container publishes only `127.0.0.1:8080`. UFW allows SSH and TCP 80/443. Other services use their existing Cloudflare tunnel and were preserved.
 
-GoDaddy root A points to that IPv4; www stays a CNAME to the root. Nameservers and unrelated DNS remain unchanged. See [deployment record](../docs/deployment-2026-10-21.md) for verification, image identity, original records and rollback.
+GoDaddy root A points to that IPv4; www stays a CNAME to the root. Nameservers and unrelated DNS remain unchanged. See [deployment record](../docs/deployment-2026-10-22.md) for verification, image identity, original records and rollback.
 
 `npm ci --no-audit` keeps image installation separate from registry vulnerability auditing. The audit endpoint timed out in this deployment session; do not treat this as a fresh clean audit result.
 

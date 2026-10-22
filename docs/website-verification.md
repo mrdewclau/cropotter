@@ -1,6 +1,12 @@
 # CropOtter website verification
 
-## Current app-shell release — 2026-10-21 (America/New_York)
+## Current process-demonstration revision — 2026-10-22 (America/New_York)
+
+Equal aligned panels replace the uneven intake composition. A large synthetic shipping-label PDF is cropped with orange guides, then becomes a finished 4 × 6 label; captions and steps follow the sequence, with working Pause/Play. Reduced-motion/no-WebGL fallback fits even 568×320. Link-form controls remain reachable on phones. The final production-build suite passed **21 checks, with 3 expected skips**, in Chromium and iPhone SE WebKit emulation; website unit/service tests passed **39/39**, typecheck and build passed. The animation/pause regression failed before implementation; fallback clipping and contrast regressions were reproduced and corrected. Independent review found no remaining important findings. No shared-engine changes were made in this revision.
+
+Latest deployment: [2026-10-22 record](deployment-2026-10-22.md). Screenshots show the live revision. Physical phone/printer acceptance remains outstanding.
+
+## Previous app-shell release — 2026-10-21 (America/New_York)
 
 Live at **https://cropotter.com**, hosted on the existing DigitalOcean Droplet with GoDaddy DNS and Caddy HTTPS. See [deployment record](deployment-2026-10-21.md) for image identity, target, DNS preservation and rollback.
 
@@ -56,3 +62,5 @@ Tests exercise URL scheme/credential/port restrictions, local and private IP rej
 ## Release limitations
 
 Production deployment, GoDaddy DNS, valid root/www HTTPS and live conversion/download checks are now recorded above and in [the deployment record](deployment-2026-10-21.md). Direct Bluetooth printing, accounts/queues, extensions and native apps remain separate milestones. The current website produces downloads for the user's normal PDF viewer or printer workflow.
+
+Live HTTPS acceptance passed **8/8** checks across Chromium and iPhone SE WebKit emulation: viewport/control fit, process phases and pause/resume, actual PDF/PNG/ZIP downloads and reduced-motion/no-WebGL conversion.
