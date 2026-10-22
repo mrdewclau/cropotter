@@ -21,7 +21,7 @@ Chromium and Firefox ran with the host libraries. This unprivileged container la
 
 ## Explicit limits
 
-The original private customer PDF was inspected during research but is not committed. The regression fixture reproduces its inspected geometry: a 792 × 612 point landscape-letter page with a 288 × 432 embedded label at top-left `(36, 90)`. Current automated acceptance uses synthetic data; a current private customer-file check remains outstanding.
+The supplied private customer PDF was run through the finished engine on 2026-10-22 after the user supplied a current link. The 50,905-byte original automatically produced one label with no review warnings: its 288 × 432 point region at top-left `(36, 90)` was extracted from the 792 × 612 point landscape-letter page. All four detected barcodes (PDF417, Data Matrix and Code128) were preserved in the 203/300 DPI PDF renders, the 203 DPI monochrome validation and the exported PNG. Independent pypdf/Pillow checks confirmed the exact page boxes, 812 × 1218 PNG and at least 26 white margin pixels; the final PDF was rendered with Poppler and visually inspected. The source, converted label and signed URL remain outside source control. Synthetic fixtures remain the committed regression suite.
 
 Version 1 rejects inline-image PDFs, Type3 font programs and tiling patterns. Drawing streams must be uncompressed or Flate-compressed without prediction, and decoded drawing content is capped at the configured input byte limit. These limits make unsupported nested content explicit; they are not silent raster fallbacks. Changed/external PDFs are fitted again; idempotent pass-through requires the original canonical byte checksum and validation.
 
