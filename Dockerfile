@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/engine/package.json packages/engine/package.json
 RUN --mount=type=secret,id=build_ca,required=false \
-    if [ -f /run/secrets/build_ca ]; then NODE_EXTRA_CA_CERTS=/run/secrets/build_ca npm ci; else npm ci; fi
+    if [ -f /run/secrets/build_ca ]; then NODE_EXTRA_CA_CERTS=/run/secrets/build_ca npm ci --no-audit; else npm ci --no-audit; fi
 COPY . .
 RUN npm run build:web
 

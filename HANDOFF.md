@@ -1,14 +1,16 @@
 # Pick up CropOtter here
 
-Last updated: **2026-10-22**. User chose to publish the project as a **public open-source repository** and continue locally to deploy it.
+Last updated: **2026-10-21 (America/New_York)**. The public repository is deployed on DigitalOcean and GoDaddy DNS points cropotter.com to it. See `docs/deployment-2026-10-21.md` for the production record.
 
-## First action in local Codex
+## Continue locally
 
-Clone this repository, open its folder as a local Codex project, and ask:
+The repository is checked out at `/Volumes/extra_space/cropotter`. Read `AGENTS.md` and `deploy/README.md` before changes. Production is on DigitalOcean Droplet `597065633` (`fww-desk`, `138.197.81.94`), in `/opt/cropotter`, with Docker Compose project `cropotter` and Caddy HTTPS. Preserve all other host applications and DNS records.
 
-> Read HANDOFF.md, AGENTS.md and deploy/README.md. Continue CropOtter from this checkpoint. Inspect my connected DigitalOcean account and deploy the working website there, then configure cropotter.com at GoDaddy. Preserve unrelated services and DNS. Verify HTTPS and an actual live sample-label conversion/download. Deployment and domain setup are already authorized.
+Use Node 24+. Run `npm ci --no-audit`, `npm run dev:web` (port 4174), or `npm run build:web` and `npm run start:web` (port 8080). The npm audit endpoint timed out during deployment; audit is a separate check, not part of image installation.
 
-Use Node 24+. Run `npm ci`, then `npm run dev:web` and open `http://127.0.0.1:4174`. Production: `npm run build:web`, then `npm run start:web` on port 8080.
+## Required design model
+
+The user's global preference is a viewport-fitting app shell for EVERYTHING, without document scrolling. Never return CropOtter to a marketing/landing-page stack. The approved shell has fixed framing, upload on the left and a contained Three.js/typography guide on the right. On phones the compact guide and upload area share the available workspace. Results keep the preview and download controls visible; help/privacy open on demand. Only bounded supporting panes may scroll. Check short portrait, landscape, enlarged text, primary control reachability and crop aspect ratio; overflow:hidden alone is not acceptance.
 
 ## What is finished
 
@@ -20,7 +22,7 @@ Use Node 24+. Run `npm ci`, then `npm run dev:web` and open `http://127.0.0.1:41
 - Standalone Node service and multi-stage Docker build; local engine assets and fonts; readiness route; Docker Compose and Caddy examples.
 - URL proxy rejects private addresses and private redirects, validates all DNS answers, pins the selected address, limits bytes/time/concurrency and bounds slow response delivery. Files/links are never persisted.
 
-## Verification checkpoint
+## Original verification checkpoint (before app-shell replacement)
 
 Engine: 52/52 tests and typecheck passed. Website: 39/39 unit/service tests and typecheck passed. Browser matrix: 43 passed, 2 skipped across desktop Chromium/Firefox/WebKit, iPhone SE WebKit and Pixel 7 Chromium. The layout sweep is intentionally skipped in the two phone contexts; desktop browsers run widths 320–2560, short landscape and enlarged text. All five browsers converted the original private supplied PDF successfully. Production dependency audit: zero known vulnerabilities.
 
@@ -28,17 +30,17 @@ The final independent review found one material issue: releasing a PDF fetch slo
 
 Browser phone contexts are emulation, not physical-device testing. Real-device Safari file sharing, touch dragging/resizing and actual printer scanning still need acceptance. No real labels or signed customer links are in this repository. To rerun the private acceptance locally, set `CROPOTTER_PRIVATE_PDF` to a locally held PDF; otherwise those cases skip.
 
-## Deployment is the next milestone
+## Production deployment
 
-**Nothing has been deployed to DigitalOcean and no DNS records have been changed.** The user signed into DigitalOcean and GoDaddy in the app browser, but this cloud session exposed only the current tab URL, without browser-control tools. It had no DigitalOcean/SSH credentials. Local continuation is intended to close this access gap. Do not mistake full workspace access for browser control; use the available supported connection in the local session.
+CropOtter is deployed at **https://cropotter.com**. Caddy provisions valid HTTPS for root and www; www redirects to root while retaining the path/query. The container is non-root, read-only and bound only to `127.0.0.1:8080`; Caddy exposes ports 80/443. No database, storage volume or new paid cloud resource was created. Other applications remain active.
 
-Deployment and GoDaddy changes were explicitly authorized. Do the normal read-only inspection first, choose the existing intended DigitalOcean target if one exists, preserve unrelated applications, and avoid inventing account/app IDs or target IPs. Do not publish through Sites or substitute another hosting service. No database or persistent volume is required for this milestone.
+GoDaddy's root A record changed from Parked to `138.197.81.94` with its 600-second TTL retained. The existing www CNAME, nameservers, Domain Connect and DMARC TXT record remain intact. The complete before/after record and rollback steps are in [the deployment record](docs/deployment-2026-10-21.md).
 
-Public DNS snapshot used GoDaddy nameservers `ns29.domaincontrol.com` and `ns30.domaincontrol.com`; no MX/TXT/AAAA/CAA records were observed on 2026-10-22. Refresh this snapshot before edits. Keep MX/TXT and unrelated records intact, set only verified target records, and check root and www HTTPS plus the canonical redirect. Follow [deploy/README.md](deploy/README.md).
+The app-shell replacement removes the long promotional sections, adds on-demand help/privacy, scales source/result previews within bounded panes and preserves conversion/crop/download behavior. Browser checks include actual PDF/PNG/ZIP files and a ten-viewport no-page-scroll regression. Physical phone/printer acceptance remains outstanding.
 
 ## Repository publication
 
-The code, full identity source, screenshots, license, CI workflow and these notes are published on `main` at https://github.com/mrdewclau/cropotter. The connected GitHub app allowed pushes but rejected creating the repository and changing its About settings. The user created the empty public repository; the full project was then pushed successfully. README branding is complete. If desired, fill the About panel locally with: **Your labels. Ready to go. Open-source shipping-label formatting, crop review and 4 × 6 PDF/PNG downloads.** Suggested topics: `shipping-labels`, `pdf`, `typescript`, `react`, `threejs`, `label-printer`. Add cropotter.com as the website after the actual deployment is verified.
+The code, full identity source, screenshots, license, CI workflow and these notes are published on `main` at https://github.com/mrdewclau/cropotter. The connected GitHub app allowed pushes but rejected creating the repository and changing its About settings. The user created the empty public repository; the full project was then pushed successfully. README branding is complete. If desired, fill the About panel locally with: **Your labels. Ready to go. Open-source shipping-label formatting, crop review and 4 × 6 PDF/PNG downloads.** Suggested topics: `shipping-labels`, `pdf`, `typescript`, `react`, `threejs`, `label-printer`. Production website: https://cropotter.com. About-panel metadata may still be updated separately.
 
 ## Product decisions already made
 

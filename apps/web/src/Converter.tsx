@@ -1,14 +1,17 @@
 import { useRef, useState, type KeyboardEvent } from "react";
 import { Icon } from "./Icon.js";
+import { HeroScene } from "./HeroScene.js";
 export function Intake({
   onFile,
   onLink,
   onSample,
+  onPrivacy,
   error,
 }: {
   onFile: (files: FileList | null) => void;
   onLink: (url: string) => void;
   onSample: () => void;
+  onPrivacy: () => void;
   error: string;
 }) {
   const [tab, setTab] = useState<"upload" | "link">("upload");
@@ -30,7 +33,7 @@ export function Intake({
         <span className="eyebrow">01 / THE LABEL FORMATTER</span>
         <span className="live-dot" aria-hidden="true" />
       </div>
-      <h2>LET’S TIDY THAT LABEL.</h2>
+      <h1>LET’S TIDY THAT LABEL.</h1>
       <p className="tool-intro">Send it over. We’ll find its perfect fit.</p>
       <div
         className="input-tabs"
@@ -60,79 +63,122 @@ export function Intake({
           <Icon name="link" /> Paste a link
         </button>
       </div>
-      {tab === "upload" ? (
-        <div role="tabpanel" id="panel-upload" aria-labelledby="tab-upload">
-          <input
-            ref={input}
-            type="file"
-            id="label-file"
-            aria-label="Upload PDF"
-            accept=".pdf,application/pdf"
-            className="sr-only"
-            tabIndex={-1}
-            onChange={(e) => onFile(e.target.files)}
-          />
-          <button
-            className={`drop-zone ${dragging ? "is-dragging" : ""}`}
-            onClick={() => input.current?.click()}
-            onDragOver={(e) => {
+      <div className={`intake-stage ${tab === "link" ? "is-link" : ""}`}>
+        {tab === "upload" ? (
+          <div role="tabpanel" id="panel-upload" aria-labelledby="tab-upload">
+            <input
+              ref={input}
+              type="file"
+              id="label-file"
+              aria-label="Upload PDF"
+              accept=".pdf,application/pdf"
+              className="sr-only"
+              tabIndex={-1}
+              onChange={(e) => onFile(e.target.files)}
+            />
+            <button
+              className={`drop-zone ${dragging ? "is-dragging" : ""}`}
+              onClick={() => input.current?.click()}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                onFile(e.dataTransfer.files);
+              }}
+            >
+              <span className="crop-corner tl" />
+              <span className="crop-corner tr" />
+              <span className="crop-corner bl" />
+              <span className="crop-corner br" />
+              <span className="upload-icon">
+                <Icon name="upload" size={30} />
+              </span>
+              <strong>Drop your PDF here</strong>
+              <span>
+                or <span className="text-link">choose a file</span>
+              </span>
+              <small>PDF · UP TO 25 MB · 50 PAGES</small>
+            </button>
+          </div>
+        ) : (
+          <form
+            role="tabpanel"
+            id="panel-link"
+            aria-labelledby="tab-link"
+            className="link-form"
+            onSubmit={(e) => {
               e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              onFile(e.dataTransfer.files);
+              onLink(url);
             }}
           >
-            <span className="crop-corner tl" />
-            <span className="crop-corner tr" />
-            <span className="crop-corner bl" />
-            <span className="crop-corner br" />
-            <span className="upload-icon">
-              <Icon name="upload" size={30} />
-            </span>
-            <strong>Drop your PDF here</strong>
-            <span>
-              or <span className="text-link">choose a file</span>
-            </span>
-            <small>PDF · UP TO 25 MB · 50 PAGES</small>
-          </button>
-        </div>
-      ) : (
-        <form
-          role="tabpanel"
-          id="panel-link"
-          aria-labelledby="tab-link"
-          className="link-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onLink(url);
-          }}
-        >
-          <label htmlFor="pdf-link">Your direct PDF link</label>
-          <input
-            id="pdf-link"
-            type="url"
-            inputMode="url"
-            required
-            maxLength={8192}
-            autoComplete="off"
-            spellCheck={false}
-            placeholder="https://…/your-label.pdf"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            aria-describedby="link-help"
-          />
-          <p id="link-help">
-            Use the PDF’s download link. Pages that need a sign-in won’t work.
-          </p>
-          <button className="button primary" type="submit">
-            Format link <Icon name="arrow" />
-          </button>
-        </form>
-      )}
+            <label htmlFor="pdf-link">Your direct PDF link</label>
+            <input
+              id="pdf-link"
+              type="url"
+              inputMode="url"
+              required
+              maxLength={8192}
+              autoComplete="off"
+              spellCheck={false}
+              placeholder="https://…/your-label.pdf"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              aria-describedby="link-help"
+            />
+            <p id="link-help">
+              Use the PDF’s download link. Pages that need a sign-in won’t work.
+            </p>
+            <button className="button primary" type="submit">
+              Format link <Icon name="arrow" />
+            </button>
+          </form>
+        )}
+        {tab === "upload" && (
+          <aside className="intake-guide" aria-label="How CropOtter works">
+            <HeroScene />
+            <div className="guide-copy">
+              <span className="eyebrow guide-kicker">
+                A CLEAN CUT. A BETTER SEND-OFF.
+              </span>
+              <h2>
+                FROM PDF TO
+                <br />
+                <span>READY TO SHIP.</span>
+              </h2>
+              <p className="guide-description">
+                The shipping label you have. The 4 × 6 fit you need.
+              </p>
+              <div className="guide-steps">
+                <p>
+                  <span>01</span>
+                  <strong>Drop your PDF.</strong>
+                  <span className="step-detail">
+                    Full page? We’ll find the label.
+                  </span>
+                </p>
+                <p>
+                  <span>02</span>
+                  <strong>Check the fit.</strong>
+                  <span className="step-detail">
+                    Keep every barcode. Fine-tune the crop.
+                  </span>
+                </p>
+                <p>
+                  <span>03</span>
+                  <strong>Take it away.</strong>
+                  <span className="step-detail">
+                    PDF, PNG, or both. Ready for your printer.
+                  </span>
+                </p>
+              </div>
+            </div>
+          </aside>
+        )}
+      </div>
       {error && (
         <p className="error-message" role="alert">
           <Icon name="alert" />
@@ -147,15 +193,9 @@ export function Intake({
       </div>
       <p className="privacy-note">
         <Icon name="shield" size={16} /> Uploaded PDFs stay on your device.{" "}
-        <a
-          href="#privacy"
-          onClick={() => {
-            const el = document.getElementById("privacy");
-            if (el instanceof HTMLDetailsElement) el.open = true;
-          }}
-        >
+        <button className="text-button" onClick={onPrivacy}>
           The details
-        </a>
+        </button>
       </p>
     </>
   );

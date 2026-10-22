@@ -1,5 +1,19 @@
 # CropOtter website verification
 
+## Current app-shell release — 2026-10-21 (America/New_York)
+
+Live at **https://cropotter.com**, hosted on the existing DigitalOcean Droplet with GoDaddy DNS and Caddy HTTPS. See [deployment record](deployment-2026-10-21.md) for image identity, target, DNS preservation and rollback.
+
+The approved replacement is a viewport-fitting app shell, not the original long landing page. Upload shares one bounded area with a Three.js/typography guide; narrow screens use a compact arrangement within that same workspace. Result controls and previews stay visible, help/privacy open on demand, and only bounded supporting panes may scroll. Screenshots under `docs/images` now show this live release.
+
+Final production-build acceptance: **21 passed, 3 intentionally skipped**, across desktop Chromium and iPhone SE WebKit emulation. Ten viewport sizes include 320×480, 375×480, 320×568, 375×667, 390×844, 568×320, 701×550, 800×600, 1280×720 and 2560×1440. Checks measure document size, guide-content fit, essential control reachability and source-canvas proportions, alongside real conversion/downloads, manual review, multiple pages, retry/cancel, changing animation frames, fallback motion, focus and axe accessibility. The private fixture is absent in both projects; the phone project also skips the desktop text/width sweep. Engine tests: 52/52. Website unit/service tests: 39/39. Both typechecks and the production build passed.
+
+Production-only font sizing was caught by the geometry checks: legacy selector prefixing changed specificity for `:is()`. Direct-child heading selectors preserve the same cascade in development and optimized builds. Short-screen reset/privacy reachability, narrow-short panel overlap, modal focus restoration and WebGL-loss animation shutdown were also corrected. Independent review found no remaining important issue.
+
+To repeat supported live checks, set `CROPOTTER_BASE_URL=https://cropotter.com` when running the website Playwright configuration; this bypasses the local web-server startup. Do not describe this emulation as physical phone/printer acceptance. Fresh dependency auditing was unavailable because the registry audit endpoint timed out.
+
+## Historical initial website acceptance
+
 Implementation: `feat/website`, based on engine commit `4e9e8d6`. Verification date: 2026-10-22. The approved identity is direction 04, The Mailroom Stamp.
 
 ## Completed checks
@@ -41,4 +55,4 @@ Tests exercise URL scheme/credential/port restrictions, local and private IP rej
 
 ## Release limitations
 
-DigitalOcean and GoDaddy account/browser access is still unavailable. No production deployment, DNS modification, live HTTPS verification or live-domain conversion has happened. See [deployment instructions](../deploy/README.md). Direct Bluetooth printing, accounts/queues, extensions and native apps remain separate milestones. The current website produces downloads for the user's normal PDF viewer or printer workflow.
+Production deployment, GoDaddy DNS, valid root/www HTTPS and live conversion/download checks are now recorded above and in [the deployment record](deployment-2026-10-21.md). Direct Bluetooth printing, accounts/queues, extensions and native apps remain separate milestones. The current website produces downloads for the user's normal PDF viewer or printer workflow.

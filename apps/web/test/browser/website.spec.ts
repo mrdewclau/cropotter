@@ -9,6 +9,136 @@ const fixture = (name: string) =>
   fileURLToPath(
     new URL(`../../../../output/demo/${name}.pdf`, import.meta.url),
   );
+
+test("keeps the single-tool workspace and downloads inside the viewport", async ({
+  page,
+}) => {
+  for (const [width, height] of [
+    [320, 480],
+    [375, 480],
+    [320, 568],
+    [375, 667],
+    [390, 844],
+    [568, 320],
+    [701, 550],
+    [800, 600],
+    [1280, 720],
+    [2560, 1440],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    const fits = async () => {
+      expect(
+        await page.evaluate(() => ({
+          width: document.documentElement.scrollWidth,
+          height: document.documentElement.scrollHeight,
+          viewportWidth: innerWidth,
+          viewportHeight: innerHeight,
+        })),
+      ).toEqual({
+        width,
+        height,
+        viewportWidth: width,
+        viewportHeight: height,
+      });
+    };
+    const inView = async (locator: Locator) => {
+      const box = await locator.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.y).toBeGreaterThanOrEqual(0);
+      expect(box!.y + box!.height).toBeLessThanOrEqual(height + 1);
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+    };
+    await fits();
+    await inView(page.getByRole("button", { name: /Drop your PDF here/ }));
+    await inView(page.getByRole("button", { name: "Try a sample label" }));
+    const guide = page.getByRole("complementary", {
+      name: "How CropOtter works",
+    });
+    await inView(guide);
+    expect(
+      await guide.evaluate((el) => el.scrollHeight <= el.clientHeight + 1),
+    ).toBe(true);
+    await page.getByRole("button", { name: "Try a sample label" }).click();
+    await ready(page);
+    await fits();
+    for (const name of ["Download PDF", "Download PNG"]) {
+      await inView(page.getByRole("link", { name, exact: true }));
+    }
+    await inView(page.getByRole("button", { name: "Start a new PDF" }));
+    await inView(page.getByRole("button", { name: "Adjust crop" }));
+    await inView(page.getByRole("img", { name: /Formatted shipping label/ }));
+    await page.getByRole("button", { name: "Adjust crop" }).click();
+    await expect(
+      page.getByRole("button", { name: "Move crop for label 1", exact: true }),
+    ).toBeVisible();
+    await inView(page.getByRole("button", { name: "Use these crops" }));
+    await inView(page.getByRole("button", { name: "Close crop editor" }));
+    await inView(
+      page.getByRole("img", { name: "Original PDF page 1", exact: true }),
+    );
+    const ratio = await page
+      .locator(".source-page canvas")
+      .evaluate((canvas: HTMLCanvasElement) => {
+        const bounds = canvas.getBoundingClientRect();
+        return Math.abs(
+          bounds.width / bounds.height - canvas.width / canvas.height,
+        );
+      });
+    expect(ratio).toBeLessThan(0.01);
+  }
+});
+
+test("pairs the upload with an animated explanation inside the workspace", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  const guide = page.getByRole("complementary", {
+    name: "How CropOtter works",
+  });
+  await expect(guide).toBeVisible();
+  await expect(
+    guide.getByRole("heading", { name: /FROM PDF TO/ }),
+  ).toBeVisible();
+  const drop = await page
+    .getByRole("button", { name: /Drop your PDF here/ })
+    .boundingBox();
+  const explanation = await guide.boundingBox();
+  expect(explanation!.x).toBeGreaterThanOrEqual(drop!.x + drop!.width);
+  const canvas = guide.locator(".three-canvas");
+  await expect(canvas).toHaveCount(1);
+  const still = await canvas.screenshot();
+  await expect
+    .poll(async () => Buffer.compare(still, await canvas.screenshot()))
+    .not.toBe(0);
+});
+
+test("opens help and privacy on demand without leaving the workspace", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Help", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "A little help." }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Help", exact: true }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "Privacy", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your label stays yours." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close help" }).click();
+  await expect(
+    page.getByRole("button", { name: /Drop your PDF here/ }),
+  ).toBeVisible();
+});
 async function ready(page: Page) {
   await expect(
     page.getByRole("heading", { name: /Looking good\./i }),
@@ -180,13 +310,11 @@ test("preserves both labels in a multi-page PDF and packages every image", async
 
 test("recovers from a file that is not a PDF", async ({ page }) => {
   await page.goto("/");
-  await page
-    .locator("input[type=file]")
-    .setInputFiles({
-      name: "broken.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("<html>not a PDF</html>"),
-    });
+  await page.locator("input[type=file]").setInputFiles({
+    name: "broken.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("<html>not a PDF</html>"),
+  });
   await expect(page.getByRole("alert")).toContainText(
     "does not look like a PDF",
   );
@@ -203,6 +331,9 @@ test("converts with reduced motion and without WebGL", async ({ page }) => {
     }),
   );
   await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: /Drop your PDF here/ }),
+  ).toBeVisible();
   await expect(page.locator(".scene-fallback")).toBeVisible();
   await expect(page.locator(".three-canvas")).toHaveCount(0);
   await page.getByRole("button", { name: "Try a sample label" }).click();
@@ -252,13 +383,16 @@ test("has no horizontal overflow from small phones to large desktops, including 
 
 test("passes accessibility checks and preserves visible keyboard focus", async ({
   page,
+  isMobile,
 }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
-  await page.keyboard.press("Tab");
-  await expect(
-    page.getByRole("link", { name: "Skip to label formatter" }),
-  ).toBeFocused();
+  if (!isMobile) {
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("link", { name: "Skip to label formatter" }),
+    ).toBeFocused();
+  }
   const initial = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
     .analyze();

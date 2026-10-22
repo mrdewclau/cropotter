@@ -4,6 +4,7 @@ import {
   useState,
   type PointerEvent,
   type KeyboardEvent,
+  type CSSProperties,
 } from "react";
 import type {
   Analysis,
@@ -213,64 +214,71 @@ export function CropEditor({
               <Icon name="right" />
             </button>
           </div>
-          <div
-            className="source-sheet"
-            ref={sheet}
-            onPointerMove={move}
-            onPointerUp={() => {
-              drag.current = undefined;
-            }}
-            onPointerCancel={() => {
-              drag.current = undefined;
-            }}
-          >
-            <PagePreview
-              source={source}
-              pageIndex={page.pageIndex}
-              width={page.widthPt}
-              height={page.heightPt}
-              onError={setError}
+          <div className="editor-sheet-space">
+            <div
+              className="source-sheet"
+              style={
+                {
+                  "--page-ratio": page.widthPt / page.heightPt,
+                } as CSSProperties
+              }
+              ref={sheet}
+              onPointerMove={move}
+              onPointerUp={() => {
+                drag.current = undefined;
+              }}
+              onPointerCancel={() => {
+                drag.current = undefined;
+              }}
             >
-              {crops.map((c, i) => {
-                const r = c.region!;
-                return (
-                  <div
-                    key={c.index}
-                    role="group"
-                    aria-label={`Crop ${i + 1}`}
-                    className={`crop-box ${crop?.index === c.index ? "selected" : ""}`}
-                    style={{
-                      left: `${(r.x / page.widthPt) * 100}%`,
-                      top: `${(r.y / page.heightPt) * 100}%`,
-                      width: `${(r.width / page.widthPt) * 100}%`,
-                      height: `${(r.height / page.heightPt) * 100}%`,
-                    }}
-                  >
-                    <button
-                      className="crop-move"
-                      aria-label={`Move crop for label ${i + 1}`}
-                      aria-describedby="crop-instructions"
-                      onFocus={() => setSelected(i)}
-                      onPointerDown={(e) => begin(e, c.index)}
-                      onKeyDown={(e) => keyMove(e, c.index)}
-                    />
-                    <span className="crop-badge">{i + 1}</span>
-                    {crop?.index === c.index &&
-                      (["nw", "ne", "sw", "se"] as const).map((corner) => (
-                        <button
-                          key={corner}
-                          className={`crop-handle ${corner}`}
-                          aria-label={`Resize ${corner} corner of label ${i + 1}`}
-                          onPointerDown={(e) => begin(e, c.index, corner)}
-                          onKeyDown={(e) => keyMove(e, c.index)}
-                        >
-                          <span />
-                        </button>
-                      ))}
-                  </div>
-                );
-              })}
-            </PagePreview>
+              <PagePreview
+                source={source}
+                pageIndex={page.pageIndex}
+                width={page.widthPt}
+                height={page.heightPt}
+                onError={setError}
+              >
+                {crops.map((c, i) => {
+                  const r = c.region!;
+                  return (
+                    <div
+                      key={c.index}
+                      role="group"
+                      aria-label={`Crop ${i + 1}`}
+                      className={`crop-box ${crop?.index === c.index ? "selected" : ""}`}
+                      style={{
+                        left: `${(r.x / page.widthPt) * 100}%`,
+                        top: `${(r.y / page.heightPt) * 100}%`,
+                        width: `${(r.width / page.widthPt) * 100}%`,
+                        height: `${(r.height / page.heightPt) * 100}%`,
+                      }}
+                    >
+                      <button
+                        className="crop-move"
+                        aria-label={`Move crop for label ${i + 1}`}
+                        aria-describedby="crop-instructions"
+                        onFocus={() => setSelected(i)}
+                        onPointerDown={(e) => begin(e, c.index)}
+                        onKeyDown={(e) => keyMove(e, c.index)}
+                      />
+                      <span className="crop-badge">{i + 1}</span>
+                      {crop?.index === c.index &&
+                        (["nw", "ne", "sw", "se"] as const).map((corner) => (
+                          <button
+                            key={corner}
+                            className={`crop-handle ${corner}`}
+                            aria-label={`Resize ${corner} corner of label ${i + 1}`}
+                            onPointerDown={(e) => begin(e, c.index, corner)}
+                            onKeyDown={(e) => keyMove(e, c.index)}
+                          >
+                            <span />
+                          </button>
+                        ))}
+                    </div>
+                  );
+                })}
+              </PagePreview>
+            </div>
           </div>
           <p className="editor-instructions" id="crop-instructions">
             Drag the frame or its corners. Arrow keys move it; Shift moves

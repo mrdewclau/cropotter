@@ -80,20 +80,24 @@ export async function mountScene(host: HTMLElement): Promise<() => void> {
   group.add(tab);
   let raf = 0,
     visible = true,
-    disposed = false;
+    disposed = false,
+    available = true;
   const target = { x: -0.18, y: -0.2 };
-  function frame() {
+  let lastFrame = -Infinity;
+  function frame(time = 0) {
     raf = 0;
-    if (disposed || !visible || document.hidden) return;
+    if (disposed || !available || !visible || document.hidden) return;
+    if (time - lastFrame < 32) {
+      raf = requestAnimationFrame(frame);
+      return;
+    }
+    lastFrame = time;
     group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, target.x, 0.12);
     group.rotation.y = THREE.MathUtils.lerp(group.rotation.y, target.y, 0.12);
+    group.position.y = Math.sin(time * 0.0007) * 0.09;
+    group.rotation.z = -0.15 + Math.sin(time * 0.00045) * 0.025;
     renderer.render(scene, camera);
-    if (
-      Math.abs(group.rotation.x - target.x) +
-        Math.abs(group.rotation.y - target.y) >
-      0.0002
-    )
-      raf = requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
   }
   function requestFrame() {
     if (!raf && !disposed && visible && !document.hidden)
@@ -126,6 +130,9 @@ export async function mountScene(host: HTMLElement): Promise<() => void> {
     } else requestFrame();
   }
   function lost() {
+    available = false;
+    cancelAnimationFrame(raf);
+    raf = 0;
     host.dataset.enhanced = "false";
   }
   const ro = new ResizeObserver(resize);

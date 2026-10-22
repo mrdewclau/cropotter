@@ -1,10 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+const liveURL = process.env.CROPOTTER_BASE_URL;
 export default defineConfig({
   testDir: "./test/browser",
+  testIgnore: "**/._*",
   timeout: 120000,
   expect: { timeout: 15000 },
   workers: 1,
-  use: { baseURL: "http://127.0.0.1:4175", trace: "retain-on-failure" },
+  use: {
+    baseURL: liveURL ?? "http://127.0.0.1:4175",
+    trace: "retain-on-failure",
+  },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
@@ -15,9 +20,11 @@ export default defineConfig({
     },
     { name: "android", use: { ...devices["Pixel 7"] } },
   ],
-  webServer: {
-    command: "PORT=4175 npm run start:web",
-    url: "http://127.0.0.1:4175",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: liveURL
+    ? undefined
+    : {
+        command: "PORT=4175 npm run start:web",
+        url: "http://127.0.0.1:4175",
+        reuseExistingServer: !process.env.CI,
+      },
 });

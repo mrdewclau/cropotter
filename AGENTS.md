@@ -8,4 +8,6 @@ Preserve portrait 4 × 6 inch labels, proportions, at least ⅛ inch of white ma
 
 The approved identity is direction 04, The Mailroom Stamp. Assets, tokens and usage guidance are under `brand/`. Product controls must work without Three.js or motion.
 
+The user requires viewport-fitting app shells for all designs. CropOtter is one tool, not a scrolling landing page. Keep navigation, upload/review and essential actions within the available screen; scale previews and adapt layout for phone and short landscape. Only bounded supporting panes may scroll. Help/privacy belong on demand. Preserve the approved split upload area with the drop zone on the left and a contained Three.js/typography explanation on the right, adapting within the same viewport on narrow screens. Verify document dimensions, visible controls, panel overlap and crop proportions rather than merely hiding overflow.
+
 Production belongs on DigitalOcean and cropotter.com uses GoDaddy DNS. Inspect the actual account/host/records before changes, preserve unrelated services and DNS, and verify health, HTTPS and real live conversion. Do not substitute Sites hosting. Keep secrets, customer PDFs and signed customer URLs out of source and logs. Update `HANDOFF.md` and verification notes when deployment status changes.

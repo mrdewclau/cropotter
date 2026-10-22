@@ -22,7 +22,7 @@
 
 CropOtter turns oversized or awkward shipping-label PDFs into portrait **4 × 6 inch labels with at least ⅛ inch of white space on every side**. It preserves proportions, keeps vector text where possible, and asks for review when a crop is uncertain.
 
-The first website release is implemented and tested. **Production deployment to DigitalOcean and cropotter.com is still pending.** Start with [HANDOFF.md](HANDOFF.md) to continue locally.
+Live at **[cropotter.com](https://cropotter.com)** on DigitalOcean. One viewport-fitting app shell: upload, review and download, with a contained animated guide. No scrolling landing page. See [deployment verification](docs/deployment-2026-10-21.md) or [HANDOFF.md](HANDOFF.md) to continue development.
 
 <table>
   <tr>
@@ -93,7 +93,7 @@ The recorded acceptance run passed **52 engine tests, 39 website/service tests a
 
 ## What comes next
 
-Publish the website on DigitalOcean and connect cropotter.com through GoDaddy. Then develop the Chrome extension, iOS app, Windows/macOS apps, and finally a validated direct-print path. Accounts, shared queues and Bluetooth printing are planned work. The current website gives users files to print through their usual PDF viewer. [Full roadmap →](docs/roadmap.md)
+The website is published on DigitalOcean and cropotter.com is connected through GoDaddy. Next develop the Chrome extension, iOS app, Windows/macOS apps, and finally a validated direct-print path. Accounts, shared queues and Bluetooth printing are planned work. The current website gives users files to print through their usual PDF viewer. [Full roadmap →](docs/roadmap.md)
 
 ## Made for the mailroom
 

@@ -12,6 +12,7 @@ tools/engine-harness/public/engine-assets/
 .env.*
 !.env.example
 .DS_Store
+._*
 __pycache__/
 brand/.tesseract-work/
 apps/web/public/engine-assets/

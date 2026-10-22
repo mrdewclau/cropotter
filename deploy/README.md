@@ -2,9 +2,13 @@
 
 This release runs as a standalone Node 24 service in a non-root Docker container. It exposes port 8080 and `GET /healthz`. It needs no database, persistent volume, API key, or runtime npm installation. Files and direct-link PDFs are transient. Configure any upstream access logging to omit request bodies; signed input links are sent in POST JSON, never a request URL.
 
-## Current access status
+## Current production
 
-No DigitalOcean account, SSH identity, or signed-in GoDaddy browser was accessible from the build session. No deployment or DNS change has been made. Public DNS on 2026-10-22 used GoDaddy nameservers `ns29.domaincontrol.com` and `ns30.domaincontrol.com`. A real deployment target must be verified before editing A/CNAME records.
+Live at **https://cropotter.com**, on existing DigitalOcean Droplet `597065633` (`fww-desk`, NYC3, `138.197.81.94`). Checkout: `/opt/cropotter`. Compose project: `cropotter`. Caddy config: `/etc/caddy/Caddyfile`; pre-install default saved as `/etc/caddy/Caddyfile.before-cropotter`. Container publishes only `127.0.0.1:8080`. UFW allows SSH and TCP 80/443. Other services use their existing Cloudflare tunnel and were preserved.
+
+GoDaddy root A points to that IPv4; www stays a CNAME to the root. Nameservers and unrelated DNS remain unchanged. See [deployment record](../docs/deployment-2026-10-21.md) for verification, image identity, original records and rollback.
+
+`npm ci --no-audit` keeps image installation separate from registry vulnerability auditing. The audit endpoint timed out in this deployment session; do not treat this as a fresh clean audit result.
 
 ## Existing DigitalOcean host
 
@@ -13,8 +17,8 @@ Inspect the connected account and intended host first: existing applications, re
 From the checked-out release root:
 
 ```sh
-docker compose -f deploy/compose.yaml build
-docker compose -f deploy/compose.yaml up -d
+docker compose -p cropotter -f deploy/compose.yaml build
+docker compose -p cropotter -f deploy/compose.yaml up -d
 curl --fail http://127.0.0.1:8080/healthz
 ```
 

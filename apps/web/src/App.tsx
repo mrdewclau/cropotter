@@ -8,7 +8,7 @@ import type {
 import { Intake, Processing } from "./Converter.js";
 import { ResultPanel } from "./ResultPanel.js";
 import { CropEditor } from "./CropEditor.js";
-import { HeroScene } from "./HeroScene.js";
+import { HelpDialog } from "./HelpDialog.js";
 import { Icon } from "./Icon.js";
 import {
   convert,
@@ -37,6 +37,7 @@ export function App() {
     total: number;
   }>();
   const [error, setError] = useState("");
+  const [help, setHelp] = useState<"help" | "privacy">();
   const current = useRef<{ id: number; controller: AbortController }>({
     id: 0,
     controller: new AbortController(),
@@ -241,225 +242,15 @@ export function App() {
       </a>
       <div className="site-shell">
         <header className="site-header">
-          <a href="#" className="brand" aria-label="CropOtter home">
-            <img
-              src="/brand/CropOtter-CO-icon.svg"
-              width="48"
-              height="48"
-              alt=""
-            />
-            <span>CropOtter</span>
-          </a>
-          <nav aria-label="Main navigation">
-            <a className="desktop-link" href="#how-it-works">
-              How it works
-            </a>
-            <a href="#faq">Help</a>
-            <a className="button nav-button" href="#converter">
-              Format a label <Icon name="arrow" size={18} />
-            </a>
-          </nav>
-        </header>
-        <main>
-          <section className="hero" aria-label="Format your shipping label">
-            <div className="hero-lead">
-              <p className="eyebrow hero-eyebrow">
-                <span /> A CLEAN CUT. A BETTER SEND-OFF.
-              </p>
-              <h1>
-                YOUR LABELS.
-                <br />
-                <span>READY TO GO.</span>
-              </h1>
-              <p className="hero-description">
-                Big PDF? Awkward margins? Let’s fix that.
-                <br className="desktop-break" /> Turn your shipping label into a
-                tidy 4 × 6.
-              </p>
-              <HeroScene />
-              <div className="hero-caption">
-                <span className="orange-square" /> LESS FUSS. MORE SEND.
-              </div>
-            </div>
-            <section
-              id="converter"
-              ref={tool}
-              className={`converter ${result && !busy ? "has-result" : ""}`}
-              aria-label="Label formatter"
-              aria-busy={!!busy}
-              tabIndex={-1}
-            >
-              {busy ? (
-                <Processing {...busy} onCancel={cancel} />
-              ) : result ? (
-                <ResultPanel
-                  value={result}
-                  name={source?.name ?? "Your PDF"}
-                  onReset={reset}
-                  onEdit={() => void edit()}
-                  onDpi={(dpi) => void changeDpi(dpi)}
-                />
-              ) : (
-                <Intake
-                  onFile={fromFiles}
-                  onLink={fromLink}
-                  onSample={sample}
-                  error={error}
-                />
-              )}
-              {result && error && !busy && (
-                <p className="error-message" role="alert">
-                  {error}
-                </p>
-              )}
-            </section>
-          </section>
-          <div className="benefit-strip">
-            <span>
-              <Icon name="crop" /> A proper 4 × 6 fit
-            </span>
-            <span>
-              <Icon name="check" /> Room on every side
-            </span>
-            <span>
-              <Icon name="download" /> PDF + PNG downloads
-            </span>
-            <span>
-              <Icon name="shield" /> No account needed
-            </span>
-          </div>
-          <section id="how-it-works" className="how-section">
-            <div className="section-intro">
-              <p className="eyebrow">FROM MESSY PDF TO READY-TO-GO LABEL</p>
-              <h2>
-                THREE SMALL STEPS.
-                <br />
-                ONE LESS THING TO DO.
-              </h2>
-              <p>
-                For the label on a full page, the link in your inbox,
-                <br className="desktop-break" /> and the package waiting by the
-                door.
-              </p>
-            </div>
-            <div className="steps">
-              <article>
-                <span className="step-number">01</span>
-                <h3>SEND IT OVER.</h3>
-                <p>
-                  Drop in a PDF, choose a file, or paste its direct download
-                  link.
-                </p>
-              </article>
-              <article>
-                <span className="step-number">02</span>
-                <h3>GIVE IT A CLEAN CUT.</h3>
-                <p>
-                  We find the label and fit it to 4 × 6. Want to fine-tune it?
-                  Adjust the crop.
-                </p>
-              </article>
-              <article>
-                <span className="step-number">03</span>
-                <h3>TAKE IT AWAY.</h3>
-                <p>
-                  Download a PDF for printing, a PNG for sharing, or both
-                  together.
-                </p>
-              </article>
-            </div>
-          </section>
-          <section className="mailroom-note">
-            <div>
-              <p className="eyebrow">A LITTLE ORDER FOR YOUR PACKING TABLE</p>
-              <h2>
-                THE LABEL IS THE IMPORTANT BIT.
-                <br />
-                LET’S MAKE ROOM FOR IT.
-              </h2>
-            </div>
-            <img
-              src="/brand/CropOtter-stamp-web.webp"
-              width="240"
-              height="178"
-              alt="CropOtter mailroom stamp"
-              loading="lazy"
-            />
-          </section>
-          <section id="faq" className="faq-section">
-            <div className="section-intro">
-              <p className="eyebrow">A FEW THINGS, BEFORE YOU SEND</p>
-              <h2>GOOD QUESTIONS.</h2>
-              <p>Here’s what to know about your next clean cut.</p>
-            </div>
-            <div className="faq-list">
-              <details>
-                <summary>
-                  What PDFs can I use?<span aria-hidden="true">+</span>
-                </summary>
-                <p>
-                  Use a shipping-label PDF, including a label sitting on a
-                  full-size page. If the crop needs a closer look, you can
-                  adjust it before downloading. The limit is 25 MB and 50 pages
-                  per PDF.
-                </p>
-              </details>
-              <details>
-                <summary>
-                  What size will my label be?<span aria-hidden="true">+</span>
-                </summary>
-                <p>
-                  A portrait 4 × 6 inch label, with at least ⅛ inch of white
-                  space on every side. We keep its proportions so the content
-                  stays in shape. PNGs are available at 203 or 300 DPI.
-                </p>
-              </details>
-              <details>
-                <summary>
-                  Can I print straight to my label printer?
-                  <span aria-hidden="true">+</span>
-                </summary>
-                <p>
-                  For now, download the PDF and print it from your usual PDF
-                  viewer. Choose 4 × 6 inch paper and actual size (100%). A
-                  direct printer connection is planned for a later release.
-                </p>
-              </details>
-              <details>
-                <summary>
-                  Why won’t my pasted link open?
-                  <span aria-hidden="true">+</span>
-                </summary>
-                <p>
-                  We need a public HTTPS link that returns the PDF itself. A
-                  sign-in page, a sharing page or an expired download link won’t
-                  work. Download the PDF from the sender, then upload that file
-                  here.
-                </p>
-              </details>
-              <details id="privacy">
-                <summary>
-                  What happens to my shipping label?
-                  <span aria-hidden="true">+</span>
-                </summary>
-                <p>
-                  Uploaded files are formatted in your browser and are not sent
-                  to our server. If you paste a link, our server fetches the PDF
-                  and passes it back to your browser without storing it. We
-                  don’t keep a label history or account database. Clear the
-                  result or close the tab to release the label from this page.
-                </p>
-                <p>
-                  Your downloads remain wherever you choose to save them. No
-                  analytics or advertising trackers are included in this
-                  website.
-                </p>
-              </details>
-            </div>
-          </section>
-        </main>
-        <footer className="site-footer">
-          <a href="#" className="brand footer-brand">
+          <a
+            href="#"
+            className="brand"
+            aria-label="CropOtter home"
+            onClick={(e) => {
+              e.preventDefault();
+              reset();
+            }}
+          >
             <img
               src="/brand/CropOtter-CO-icon.svg"
               width="36"
@@ -468,23 +259,70 @@ export function App() {
             />
             <span>CropOtter</span>
           </a>
-          <span className="eyebrow">LESS FUSS. MORE SEND.</span>
-          <div>
-            <a href="#faq">Help</a>
-            <a
-              href="#privacy"
-              onClick={() => {
-                const el = document.getElementById("privacy");
-                if (el instanceof HTMLDetailsElement) el.open = true;
+          <span className="header-purpose">YOUR LABELS. READY TO GO.</span>
+          <nav aria-label="Main navigation">
+            <button
+              className="text-button"
+              onClick={(e) => {
+                e.currentTarget.focus();
+                setHelp("help");
+              }}
+            >
+              Help
+            </button>
+            <button
+              className="text-button"
+              onClick={(e) => {
+                e.currentTarget.focus();
+                setHelp("privacy");
               }}
             >
               Privacy
-            </a>
-            <span>© {new Date().getFullYear()} CropOtter</span>
-          </div>
+            </button>
+          </nav>
+        </header>
+        <main className="app-workspace">
+          <section
+            id="converter"
+            ref={tool}
+            className={`converter ${result && !busy ? "has-result" : ""}`}
+            aria-label="Label formatter"
+            aria-busy={!!busy}
+            tabIndex={-1}
+          >
+            {busy ? (
+              <Processing {...busy} onCancel={cancel} />
+            ) : result ? (
+              <ResultPanel
+                value={result}
+                name={source?.name ?? "Your PDF"}
+                onReset={reset}
+                onEdit={() => void edit()}
+                onDpi={(dpi) => void changeDpi(dpi)}
+              />
+            ) : (
+              <Intake
+                onFile={fromFiles}
+                onLink={fromLink}
+                onSample={sample}
+                onPrivacy={() => setHelp("privacy")}
+                error={error}
+              />
+            )}
+            {result && error && !busy && (
+              <p className="error-message" role="alert">
+                {error}
+              </p>
+            )}
+          </section>
+        </main>
+        <footer className="app-status">
+          <span>
+            <Icon name="shield" size={14} /> On your device. No account needed.
+          </span>
         </footer>
-        <div className="postal-edge" aria-hidden="true" />
       </div>
+      {help && <HelpDialog section={help} onClose={() => setHelp(undefined)} />}
       {analysis && source && (
         <CropEditor
           source={source.bytes}
