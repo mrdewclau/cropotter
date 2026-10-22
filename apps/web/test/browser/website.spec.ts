@@ -96,6 +96,58 @@ test("keeps the single-tool workspace and downloads inside the viewport", async 
   }
 });
 
+test("serves share metadata and downloadable preview media without JavaScript", async ({
+  request,
+}) => {
+  const html = await (await request.get("/")).text();
+  expect(html).toContain('property="og:image"');
+  expect(html).toContain('property="og:video"');
+  expect(html).toContain(
+    "https://cropotter.com/share/cropotter-preview-v1.png",
+  );
+  expect(html).toContain(
+    "https://cropotter.com/share/cropotter-preview-v1.mp4",
+  );
+  const image = await request.get("/share/cropotter-preview-v1.png");
+  expect(image.status()).toBe(200);
+  expect(image.headers()["content-type"]).toBe("image/png");
+  const bytes = await image.body();
+  expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([1730, 909]);
+  const video = await request.get("/share/cropotter-preview-v1.mp4");
+  expect(video.status()).toBe(200);
+  expect(video.headers()["content-type"]).toBe("video/mp4");
+  const movie = await video.body();
+  expect(movie.subarray(4, 8).toString()).toBe("ftyp");
+  expect(bytes.length + movie.length).toBeLessThan(10_000_000);
+  const range = await request.get("/share/cropotter-preview-v1.mp4", {
+    headers: { Range: "bytes=0-31" },
+  });
+  expect(range.status()).toBe(206);
+  expect(await range.body()).toEqual(movie.subarray(0, 32));
+});
+
+test("centers the upload glyph in its badge with balanced label spacing", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "Compact intake intentionally hides the upload badge.");
+  await page.goto("/");
+  const badge = await page.locator(".upload-icon").boundingBox();
+  const glyph = await page.locator(".upload-icon svg").boundingBox();
+  const label = await page.locator(".drop-zone strong").boundingBox();
+  expect(badge).not.toBeNull();
+  expect(glyph).not.toBeNull();
+  expect(label).not.toBeNull();
+  expect(
+    Math.abs(badge!.x + badge!.width / 2 - (glyph!.x + glyph!.width / 2)),
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(badge!.y + badge!.height / 2 - (glyph!.y + glyph!.height / 2)),
+  ).toBeLessThanOrEqual(1);
+  expect(label!.y - badge!.y - badge!.height).toBeGreaterThanOrEqual(12);
+  expect(label!.y - badge!.y - badge!.height).toBeLessThanOrEqual(28);
+});
+
 test("demonstrates the PDF crop transformation in aligned panels and can pause it", async ({
   page,
 }) => {
@@ -500,7 +552,7 @@ test("keeps download-panel focus outlines inside the clipped pane", async ({
     const extent = parseFloat(css.outlineWidth) + parseFloat(css.outlineOffset);
     return {
       focused: el.matches(":focus-visible"),
-        arrowSpace: parseFloat(css.paddingRight),
+      arrowSpace: parseFloat(css.paddingRight),
       right: pane.right - box.right - extent,
     };
   });

@@ -255,3 +255,39 @@ describe("HTTP service", () => {
     }
   });
 });
+
+it("serves preview MP4s with video MIME, byte ranges and HEAD support", async () => {
+  const root = await mkdtemp(join(tmpdir(), "cropotter-preview-"));
+  const bytes = Buffer.from("0123456789");
+  await writeFile(join(root, "preview.mp4"), bytes);
+  const server = createApp({ clientDirectory: root });
+  await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+  const address = server.address();
+  if (!address || typeof address === "string") throw Error("address");
+  const url = `http://127.0.0.1:${address.port}/preview.mp4`;
+  try {
+    const full = await fetch(url);
+    expect(full.headers.get("content-type")).toBe("video/mp4");
+    expect(Buffer.from(await full.arrayBuffer())).toEqual(bytes);
+    for (const [range, expected, contentRange] of [
+      ["bytes=2-5", "2345", "bytes 2-5/10"],
+      ["bytes=-3", "789", "bytes 7-9/10"],
+      ["bytes=8-", "89", "bytes 8-9/10"],
+    ]) {
+      const res = await fetch(url, { headers: { Range: range! } });
+      expect(res.status).toBe(206);
+      expect(res.headers.get("content-range")).toBe(contentRange);
+      expect(await res.text()).toBe(expected);
+    }
+    const head = await fetch(url, { method: "HEAD" });
+    expect(head.headers.get("accept-ranges")).toBe("bytes");
+    expect(head.headers.get("content-length")).toBe("10");
+    expect(await head.text()).toBe("");
+    const invalid = await fetch(url, { headers: { Range: "bytes=50-60" } });
+    expect(invalid.status).toBe(416);
+    expect(invalid.headers.get("content-range")).toBe("bytes */10");
+  } finally {
+    await new Promise<void>((r) => server.close(() => r()));
+    await rm(root, { recursive: true, force: true });
+  }
+});

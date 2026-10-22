@@ -76,3 +76,11 @@ Focus-outline correction: live regression reproduced a 7px right-edge clip on th
 Dropdown spacing correction: native arrow placement crowded the right edge, especially under the phone rule that reduced all select padding to 6px. The resolution selector now reserves 44px, with an 18px chevron inset 14px. The regression reproduced insufficient reserved space before the correction.
 
 Final live dropdown-spacing and focus regression: **2/2 passed**, desktop Chromium and iPhone WebKit emulation; live screenshots visually checked. Container healthy.
+
+## Link preview and upload badge — 2026-10-22
+
+Website typecheck, production build and **41/41 unit/service tests** passed. MP4 MIME/range regression failed before implementation; standard, open-ended, suffix, unsatisfiable ranges and HEAD now pass. Independent review found no important findings. The upload badge regression reproduced a 9px horizontal glyph offset, then passed with grid centering. Production-build browser subset: **9 passed, 1 expected skip** in Chromium and iPhone WebKit emulation, covering static share metadata/image/video requests, actual MP4 range bytes, upload centering, ten viewport sizes, conversions/downloads and accessibility. The compact phone layout deliberately hides the badge.
+
+The generated PNG and portable Tesseract animation/filmstrip were visually reviewed. FFprobe confirms 1200×630, 7 seconds, H.264/yuv420p and no audio; combined preview media are below 10 MB. Actual iMessage sending/autoplay remains unverified. See [preview notes and prompt](share-preview.md).
+
+Live HTTPS preview/centering acceptance: **3 passed, 1 expected compact-phone badge skip**. Direct public MP4 playback was visually checked in the in-app browser. Container health verified. This is not an actual iMessage share test.

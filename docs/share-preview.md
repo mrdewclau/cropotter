@@ -1,0 +1,15 @@
+# CropOtter link preview — 2026-10-22
+
+The page ships server-readable Open Graph image/video metadata plus Twitter large-image metadata. Fallback image: `/share/cropotter-preview-v1.png` (1730 × 909, about 2 MB), generated with the built-in image-generation tool using the approved brand sheet as style reference. Motion: `/share/cropotter-preview-v1.mp4` (1200 × 630, 7 seconds, 30fps, H.264/yuv420p, silent, faststart, 203584 bytes). Combined media remain below Apple's 10 MB resource guideline. No customer labels are used.
+
+The MP4 is a native Tesseract composition with embedded fonts and stamp; editable source, filmstrip and authoring notes are in `brand/share-motion`. The PDF → crop → label demonstration uses synthetic artwork. The PNG and MP4 intentionally offer related but distinct brand compositions. Actual user shipping-label downloads remain unbranded.
+
+Apple documents directly downloadable MP4 `og:video` playback in Messages. A GIF is not used as the universal preview image: the PNG is the image fallback, while capable clients may play the MP4. Rendering/autoplay can differ by app and user settings; actual iMessage sending/playback has not been tested. No message was sent on the user's behalf.
+
+Source: https://developer.apple.com/documentation/technotes/tn3156-create-rich-previews-for-messages
+
+## Generated still prompt
+
+Create a polished final social link preview image for CropOtter, shipping-label PDF formatter. Landscape 1200x630 composition (or exactly same aspect ratio). Reference image is brand style only: preserve The Mailroom Stamp identity, indigo #243A79, warm cream paper #F6F1E7, postal orange #D85C32, condensed bold headline typography. Do NOT reproduce the brand board or website screenshot. Create a single striking editorial brand card: left half has a large tactile indigo stacked CROP / OTTER mailroom stamp logo, right half has a crisp oversized white shipping label emerging out of a larger full-page cream PDF sheet, framed by vivid orange crop registration corners, a visually clear clean crop transformation. Slight physical paper depth, elegant restrained shadows, sharp graphic print design, highly readable silhouette at small thumbnail size, balanced dense composition with deliberate negative space, no tiny text. Main exact headline across upper region or lower-left: 'YOUR LABELS. READY TO GO.' Small lower-left exact text 'PDF → 4 × 6'. Label contains a fictional barcode and abstract address lines only; no real address, no extraneous words, no UI controls, no photo, no otter animal, no gradients, no glow, no large dead empty space. Keep important visual content within central 80% safe area. This should feel like a beautifully art-directed professional useful tool, playful tactile mailroom graphic, not generic SaaS. The brand name and paper crop graphic dominate. Entire canvas fully opaque warm paper.
+
+The returned full-resolution PNG is used unchanged; the model output dimensions are 1730 × 909 and are recorded accurately in metadata.

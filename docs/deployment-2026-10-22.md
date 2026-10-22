@@ -21,3 +21,9 @@ Focus-ring correction release: local image `sha256:3739bfe4d823613c4025bfa882e23
 Final dropdown-spacing release: local image `sha256:38ff7930d23972ed061e49039f1c3effa9dd6585a5349235993ff8f695550739`, tag `cropotter:release-20261022-filenames-spacing`; CSS `index-DkazY_tS.css`, entry `index-CQrqoAFq.js`. It reserves text/arrow spacing consistently across desktop and phone. Local focused checks passed 2/2.
 
 Final live dropdown-spacing and focus regression: **2/2 passed**, desktop Chromium and iPhone WebKit emulation; live screenshots visually checked. Container healthy.
+
+## Social preview and upload-centering release
+
+Local image `sha256:26939031cb058f35f96b1b8af424462cf006e624cef9cfca9f09bfe9d2862e69`, tag `cropotter:release-20261022-social`. Client CSS `index-BQvLTEBB.css`, entry `index-DMihfW6m.js`. Static share image and downloadable MP4 are under `/share/`, referenced in initial HTML metadata. The service supplies MP4 MIME and byte ranges. Upload badge glyph is centered. Rollback image: `cropotter:before-social-20261022`; use the same retag/Compose procedure. DNS/proxy/unrelated services remain unchanged.
+
+Live HTTPS preview/centering acceptance: **3 passed, 1 expected compact-phone badge skip**. Direct public MP4 playback was visually checked in the in-app browser. Container health verified. This is not an actual iMessage share test.

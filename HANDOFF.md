@@ -72,3 +72,7 @@ The result panel includes a File name field initialized from the source basename
 Download-panel focus rings are inset so bounded-pane overflow does not clip their edges. Preserve this when changing control styles.
 
 PNG resolution uses a consistent 18px chevron, inset 14px from the right edge, with 44px reserved text padding. Preserve that space on phones; native select arrows previously crowded the focus border.
+
+## Social link preview and upload badge — 2026-10-22
+
+The homepage includes static Open Graph/Twitter metadata for a generated branded PNG and a silent crop-process MP4. Both are public under `/share/`; editable motion source is in `brand/share-motion`. See `docs/share-preview.md` for prompt, dimensions, Apple guidance and actual-device limits. MP4 serving includes correct MIME and byte-range/HEAD support for Safari; resources are under Apple's recommended budget. Product files remain unbranded. Upload badge uses CSS grid to center its glyph (prior flex override left it 9px off-center). Preserve compact mobile behavior that intentionally hides the badge.

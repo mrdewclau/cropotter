@@ -18,6 +18,7 @@ const MIME: Record<string, string> = {
   ".json": "application/json",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  ".mp4": "video/mp4",
   ".webp": "image/webp",
   ".woff2": "font/woff2",
   ".wasm": "application/wasm",
@@ -29,7 +30,7 @@ const MIME: Record<string, string> = {
   ".ico": "image/x-icon",
 };
 const CSP =
-  "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'";
+  "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; font-src 'self'; connect-src 'self' blob:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'";
 interface AppOptions {
   clientDirectory?: string;
   fetchPdf?: typeof fetchPublicPdf;
@@ -201,6 +202,49 @@ export function createApp(options: AppOptions = {}) {
       const info = await stat(file).catch(() => null);
       if (!info?.isFile()) {
         json(res, 404, { message: "Not found." });
+        return;
+      }
+      // Small downloadable MP4 previews also support Safari's byte-range reads.
+      if (extname(file) === ".mp4") {
+        res.setHeader("Content-Type", "video/mp4");
+        res.setHeader("Cache-Control", "public, max-age=86400");
+        res.setHeader("Accept-Ranges", "bytes");
+        let start = 0,
+          end = info.size - 1;
+        if (req.headers.range) {
+          const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
+          if (match && (match[1] || match[2])) {
+            if (!match[1]) start = Math.max(0, info.size - Number(match[2]));
+            else {
+              start = Number(match[1]);
+              if (match[2]) end = Math.min(end, Number(match[2]));
+            }
+          } else start = -1;
+          if (
+            !Number.isSafeInteger(start) ||
+            !Number.isSafeInteger(end) ||
+            start < 0 ||
+            start > end ||
+            start >= info.size
+          ) {
+            res.writeHead(416, {
+              "Content-Range": `bytes */${info.size}`,
+              "Content-Length": "0",
+            });
+            res.end();
+            return;
+          }
+          res.statusCode = 206;
+          res.setHeader("Content-Range", `bytes ${start}-${end}/${info.size}`);
+        }
+        res.setHeader("Content-Length", Math.max(0, end - start + 1));
+        if (req.method === "HEAD" || info.size === 0) {
+          res.end();
+          return;
+        }
+        createReadStream(file, { start, end })
+          .on("error", () => res.destroy())
+          .pipe(res);
         return;
       }
       let served = file,
