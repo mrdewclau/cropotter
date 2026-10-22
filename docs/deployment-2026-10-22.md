@@ -1,6 +1,6 @@
 # CropOtter deployment history — 2026-10-22
 
-This is a chronological release record. The security release below is current. Earlier images and rollback targets predate security fixes; use them only for emergency recovery with the documented exposure understood.
+This is a chronological release record. The agent-tools release at the end is current and retains the security fixes. Images before the security release predate those fixes; use them only for emergency recovery with the documented exposure understood.
 
 ## Initial process demonstration release (historical)
 
@@ -43,3 +43,13 @@ Runtime image `sha256:d3b27a8e36d2010d66569917ea5f479684c32671e48beb05d3b35647ba
 Caddy now runs `/usr/local/bin/caddy-2.11.7-go1.26.10` via the original service account and the checked-in override. Binary SHA-256 `73c7e2d865ae4222ec23eceba00a8614b39c2f24326ff8226504d3c465986bc1`; official Caddy 2.11.7 source, Go 1.26.10, x/net 0.60.0. Reproducible build/scan inputs under `deploy/caddy-build`. HSTS/body/header/time bounds, explicit proxy identity overwrite and SNI/Host matching are active; Caddy 256 MiB / one CPU / 128 task limits verified. The old config is `/etc/caddy/Caddyfile.before-security-20261022`; proxy rollback requires reverting config/override and explicitly restarting, but would restore old security exposure and should only be an emergency measure. ACME certificates/state and DNS were preserved.
 
 Host ca-certificates updated to 20260816ubuntu0.24.04.1. The user approved shared-host maintenance: 53 eligible upgrades installed, reboot completed onto kernel 6.8.0-147-generic, host Node 22.23.4 and cloudflared 2026.10.3 running. No failed units or pending reboot marker; 5 Ubuntu-phased updates remain deferred. All checked services and tunnel readiness recovered; post-reboot live acceptance passed 6/6. See [security report](security-review-2026-10-22.md) for scope, findings and final acceptance.
+
+## Agent-tools release
+
+Implementation `86341ee779cbfcba100b9923427369ad03981fab` published on main and deployed on the same DigitalOcean host. Runtime image `sha256:c45c82aff049c1c368072d42a0555a9bc0c6978b73c44e40f49f48703e6dd33d`, tag `cropotter:release-20261022-agent-tools`, Node 24.22.1. Container healthy, read-only, 512 MiB / one CPU, OOMKilled=false, RestartCount=0. Caddy PID 885 and cloudflared PID 1750 remained unchanged. No DNS, proxy, subscription or unrelated-service changes; no new cloud resources.
+
+WebMCP tools execute the existing browser engine. Local CLI/stdio MCP and executable skill archives are static downloads at https://cropotter.com/agents/. All four published artifact lengths/hashes/MIME types were verified against live bytes; clean installs of the live tarball and live skill ZIP outside the checkout converted synthetic PDF/PNG/ZIP outputs, including actual MCP resource delivery. Existing host/bandwidth and caller-side runtime/model costs still apply.
+
+[Linux CI 39804881600](https://github.com/mrdewclau/cropotter/actions/runs/39804881600) succeeded, including 98 browser checks / 12 expected skips. Focused live browser acceptance passed 9 / 1 expected skip across Chromium and iPhone emulation. The actual in-app browser discovered six native WebMCP tools without flags or a shim and converted/configured/downloaded a sample. Live screenshots were visually reviewed; detailed evidence and compatibility limits are in [agent verification](agent-verification-2026-10-22.md).
+
+Rollback image preserved as `cropotter:before-agent-tools-20261022`, image `sha256:d3b27a8e36d2010d66569917ea5f479684c32671e48beb05d3b35647ba9c9d58`. Use the same retag/Compose/health procedure above. The first health request during container replacement received a transient connection reset; subsequent health and all live release checks passed. Documentation-only commits after this implementation do not require a runtime rebuild.

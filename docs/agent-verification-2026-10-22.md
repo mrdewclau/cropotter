@@ -21,7 +21,20 @@ Independent review found a false-success cancellation race and a potential abort
 
 ## Deployment and cross-platform gates
 
-Linux CI, production image identity and live release checks are recorded below after execution; until then they remain pending. Do not infer acceptance from source/build alone.
+| Release gate | Executed result |
+| --- | --- |
+| Public source | Implementation `86341ee779cbfcba100b9923427369ad03981fab` published on `main`. |
+| Linux CI | [Run 39804881600](https://github.com/mrdewclau/cropotter/actions/runs/39804881600) succeeded: 61 engine, 50 web/service, 10 local and 3 distribution tests; clean packed/skill installs, typechecks/builds and 98 browser checks passed / 12 expected skips. |
+| Production image | `sha256:c45c82aff049c1c368072d42a0555a9bc0c6978b73c44e40f49f48703e6dd33d`, tag `cropotter:release-20261022-agent-tools`, Node 24.22.1. |
+| Live browser checks | 9 passed / 1 expected skip across Chromium and iPhone emulation, including actual exports, review gating, cancellation and errors. |
+| Actual app browser | Six native WebMCP tools discovered without flags or a shim; sample converted, filename changed to Agent sample, 300 DPI selected, download metadata returned and PDF download initiated. |
+| Public downloads | All four manifest artifact lengths, SHA-256 hashes and MIME types verified against actual live bytes. Fresh installations of the live tarball and live skill ZIP outside the checkout passed CLI/MCP/resource/skill conversion, including PDF 288x432pt and PNG 1200x1800. |
+| Live shell | Converted desktop view at 1280x720 and agent guide at 1280x720 / 375x667 checked for document overflow; screenshots visually reviewed. Ignored diagnostics under `output/agent-release/`. |
+| Host isolation | Same Droplet/container limits: healthy, 512 MiB, one CPU, read-only, OOMKilled=false, RestartCount=0. Caddy PID 885 and cloudflared PID 1750 unchanged; no DNS, proxy or unrelated-service changes. |
+
+Published package: `cropotter-local-0.1.0.tgz`, 65,053 bytes, SHA-256 `6784e6ec3fab39504cb0c7f7166a46bb0893196fddf65b3afc76cd837dbd6107`. Published skill: `cropotter-skill-0.1.0.zip`, 71,616 bytes, SHA-256 `3f9995d24df17784d938e46e9aee3abd9dd52f29649a96f458596d11834efc8f`. Public installation guide: https://cropotter.com/agents/.
+
+Rollback image preserved as `cropotter:before-agent-tools-20261022` (security release `sha256:d3b27a8e36d2010d66569917ea5f479684c32671e48beb05d3b35647ba9c9d58`). The first health request during container replacement received a transient connection reset; subsequent health and all live acceptance checks passed.
 
 ## Cost and privacy boundary
 
@@ -29,4 +42,4 @@ No new cloud resource, storage account, paid hosting plan, model API, DNS record
 
 ## Known limits
 
-Node 24+, npm access on first install and a supported native canvas platform are required for local/skill execution. Native runtime tests executed here are macOS; Linux acceptance is a separate CI gate. Windows installation and native chat attachment presentation are not verified. Do not claim universal client/OS support or automatic discovery. Browser blob download links are limited to the live page and expire on output replacement/reset/close. Arbitrary local-file reads, overwriting files and automatic human-review acknowledgement are not exposed. Output directories must be private/stable during writing; Node does not provide a race-proof cross-platform directory-handle API. Physical printer scanning remains outside this release's acceptance.
+Node 24+, npm access on first install and a supported native canvas platform are required for local/skill execution. macOS execution and Linux CI installation/conversion passed. Windows installation and client-specific chat attachment presentation are not verified; the actual app-browser check establishes native tool discovery and browser download initiation. Do not claim universal client/OS support or automatic discovery. Browser blob download links are limited to the live page and expire on output replacement/reset/close. Arbitrary local-file reads, overwriting files and automatic human-review acknowledgement are not exposed. Output directories must be private/stable during writing; Node does not provide a race-proof cross-platform directory-handle API. Physical printer scanning remains outside this release's acceptance.
