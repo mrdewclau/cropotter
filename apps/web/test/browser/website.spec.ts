@@ -68,6 +68,7 @@ test("keeps the single-tool workspace and downloads inside the viewport", async 
     await page.getByRole("button", { name: "Try a sample label" }).click();
     await ready(page);
     await fits();
+    await inView(page.getByLabel("File name", { exact: true }));
     for (const name of ["Download PDF", "Download PNG"]) {
       await inView(page.getByRole("link", { name, exact: true }));
     }
@@ -217,6 +218,53 @@ test("formats the sample and offers actual PDF, PNG and ZIP downloads", async ({
   );
   expect([high.readUInt32BE(16), high.readUInt32BE(20)]).toEqual([1200, 1800]);
   expect(errors).toEqual([]);
+});
+
+test("renames every downloaded asset and archive contents", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try a sample label" }).click();
+  await ready(page);
+  await page.getByLabel("File name", { exact: true }).fill("Order 204.pdf");
+  for (const [label, expected] of [
+    ["Download PDF", "Order 204.pdf"],
+    ["Download PNG", "Order 204.png"],
+  ]) {
+    const pending = page.waitForEvent("download");
+    await page.getByRole("link", { name: label, exact: true }).click();
+    expect((await pending).suggestedFilename()).toBe(expected);
+  }
+  const archiveBytes = await page
+    .getByRole("link", { name: /PDF \+ PNG/ })
+    .evaluate(async (el) =>
+      Array.from(
+        new Uint8Array(
+          await (await fetch((el as HTMLAnchorElement).href)).arrayBuffer(),
+        ),
+      ),
+    );
+  expect(Object.keys(unzipSync(new Uint8Array(archiveBytes)))).toEqual([
+    "Order 204.pdf",
+    "Order 204-001-203dpi.png",
+  ]);
+  const pending = page.waitForEvent("download");
+  await page.getByRole("link", { name: /PDF \+ PNG/ }).click();
+  const bundle = await pending;
+  expect(bundle.suggestedFilename()).toBe("Order 204.zip");
+  expect(
+    Object.keys(unzipSync(await readFile((await bundle.path())!))),
+  ).toEqual(["Order 204.pdf", "Order 204-001-203dpi.png"]);
+  await page.getByLabel("PNG resolution").selectOption("300");
+  await ready(page);
+  await expect(page.getByLabel("File name", { exact: true })).toHaveValue(
+    "Order 204",
+  );
+  await page.getByLabel("File name", { exact: true }).fill(" /:*? ");
+  await page.getByLabel("File name", { exact: true }).press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Download PDF", exact: true }),
+  ).toHaveAttribute("download", "label.pdf");
 });
 
 test("opens a real PDF crop preview, supports movement and requires review acknowledgement", async ({
@@ -435,6 +483,30 @@ test("passes accessibility checks and preserves visible keyboard focus", async (
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
     .analyze();
   expect(result.violations).toEqual([]);
+});
+
+test("keeps download-panel focus outlines inside the clipped pane", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try a sample label" }).click();
+  await ready(page);
+  await page.getByLabel("File name", { exact: true }).click();
+  await page.keyboard.press("Tab");
+  const clearance = await page.getByLabel("PNG resolution").evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    const pane = el.closest(".result-actions")!.getBoundingClientRect();
+    const css = getComputedStyle(el);
+    const extent = parseFloat(css.outlineWidth) + parseFloat(css.outlineOffset);
+    return {
+      focused: el.matches(":focus-visible"),
+        arrowSpace: parseFloat(css.paddingRight),
+      right: pane.right - box.right - extent,
+    };
+  });
+  expect(clearance.focused).toBe(true);
+  expect(clearance.right).toBeGreaterThanOrEqual(0);
+  expect(clearance.arrowSpace).toBeGreaterThanOrEqual(40);
 });
 
 test("the actual supplied private PDF converts through the website", async ({

@@ -64,3 +64,15 @@ Tests exercise URL scheme/credential/port restrictions, local and private IP rej
 Production deployment, GoDaddy DNS, valid root/www HTTPS and live conversion/download checks are now recorded above and in [the deployment record](deployment-2026-10-21.md). Direct Bluetooth printing, accounts/queues, extensions and native apps remain separate milestones. The current website produces downloads for the user's normal PDF viewer or printer workflow.
 
 Live HTTPS acceptance passed **8/8** checks across Chromium and iPhone SE WebKit emulation: viewport/control fit, process phases and pause/resume, actual PDF/PNG/ZIP downloads and reduced-motion/no-WebGL conversion.
+
+## Editable download names — 2026-10-22
+
+Website unit/service tests: **40/40 passed**; typecheck and production build passed. The filename sanitization regression failed before implementation. Browser acceptance checks actual suggested PDF/PNG/ZIP filenames, ZIP entry names both through the link URL and ordinary download, name persistence through DPI changes, and empty/unsupported input fallback. The viewport sweep also asserts the filename field remains reachable at all ten sizes. Independent review confirmed the renamed ZIP link fix and found no remaining important findings. AppleDouble filesystem metadata is excluded from Vitest discovery.
+
+Final filename-release production-build browser acceptance: **23 passed, 3 expected skips** across Chromium and iPhone SE WebKit emulation. Live HTTPS filename/download/archive acceptance: **2/2 passed**. Container health verified after deployment. Updated result screenshots show the live File name control.
+
+Focus-outline correction: live regression reproduced a 7px right-edge clip on the PNG resolution select. Download-panel focus outlines now render inside controls, preserving the full indicator without changing panel dimensions.
+
+Dropdown spacing correction: native arrow placement crowded the right edge, especially under the phone rule that reduced all select padding to 6px. The resolution selector now reserves 44px, with an 18px chevron inset 14px. The regression reproduced insufficient reserved space before the correction.
+
+Final live dropdown-spacing and focus regression: **2/2 passed**, desktop Chromium and iPhone WebKit emulation; live screenshots visually checked. Container healthy.

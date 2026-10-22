@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dpi } from "../../../packages/engine/src/types.js";
-import { bytesUrl } from "./lib/downloads.js";
+import { bytesUrl, downloadName, makeArchive } from "./lib/downloads.js";
 import type { Conversion } from "./lib/conversion.js";
 import { Icon } from "./Icon.js";
 export function ResultPanel({
   value,
+  outputName,
+  onOutputName,
   name,
   onReset,
   onEdit,
   onDpi,
 }: {
   value: Conversion;
+  outputName: string;
+  onOutputName: (name: string) => void;
   name: string;
   onReset: () => void;
   onEdit: () => void;
@@ -19,19 +23,36 @@ export function ResultPanel({
   const [index, setIndex] = useState(0);
   const [ack, setAck] = useState(false);
   const [shareError, setShareError] = useState("");
+  const stem = downloadName(outputName);
+  const [draftName, setDraftName] = useState(outputName);
+  const zipUrl = useMemo(
+    () =>
+      bytesUrl(
+        makeArchive(
+          stem,
+          value.prepared.pdf,
+          value.images.map((image, i) => ({
+            name: `${stem}-${String(i + 1).padStart(3, "0")}-${value.dpi}dpi.png`,
+            data: image.data,
+          })),
+          `${stem}.pdf`,
+        ),
+        "application/zip",
+      ),
+    [value, stem],
+  );
+  useEffect(() => () => URL.revokeObjectURL(zipUrl), [zipUrl]);
   const heading = useRef<HTMLHeadingElement>(null);
   const links = useMemo(
     () => ({
       pdf: bytesUrl(value.prepared.pdf, "application/pdf"),
       images: value.images.map((i) => bytesUrl(i.data, "image/png")),
-      zip: bytesUrl(value.zip, "application/zip"),
     }),
     [value],
   );
   useEffect(
     () => () => {
       URL.revokeObjectURL(links.pdf);
-      URL.revokeObjectURL(links.zip);
       links.images.forEach(URL.revokeObjectURL);
     },
     [links],
@@ -48,12 +69,10 @@ export function ResultPanel({
   const allowed = !review || ack;
   const pdfFile = useMemo(
     () =>
-      new File(
-        [new Uint8Array(value.prepared.pdf).buffer],
-        `${value.stem}-4x6.pdf`,
-        { type: "application/pdf" },
-      ),
-    [value],
+      new File([new Uint8Array(value.prepared.pdf).buffer], `${stem}.pdf`, {
+        type: "application/pdf",
+      }),
+    [value, stem],
   );
   const canShare =
     typeof navigator.canShare === "function" &&
@@ -153,6 +172,26 @@ export function ResultPanel({
               </label>
             </div>
           )}
+          <div className="output-name">
+            <label htmlFor="output-name">File name</label>
+            <input
+              id="output-name"
+              value={draftName}
+              maxLength={120}
+              onChange={(e) => setDraftName(e.target.value)}
+              onBlur={() => {
+                const name = downloadName(draftName);
+                setDraftName(name);
+                onOutputName(name);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.currentTarget.blur();
+              }}
+              placeholder="label"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </div>
           <div className="resolution">
             <label htmlFor="resolution">PNG resolution</label>
             <select
@@ -168,7 +207,7 @@ export function ResultPanel({
             <a
               className="button primary"
               href={allowed ? links.pdf : undefined}
-              download={`${value.stem}-4x6.pdf`}
+              download={`${stem}.pdf`}
               {...downloadProps}
             >
               <Icon name="download" /> Download PDF
@@ -176,7 +215,7 @@ export function ResultPanel({
             <a
               className="button secondary"
               href={allowed ? links.images[selected] : undefined}
-              download={`${value.stem}-${selected + 1}-4x6-${value.dpi}dpi.png`}
+              download={`${stem}${value.images.length > 1 ? `-${selected + 1}` : ""}.png`}
               {...downloadProps}
             >
               <Icon name="download" /> Download PNG
@@ -184,8 +223,8 @@ export function ResultPanel({
           </div>
           <a
             className="bundle-link"
-            href={allowed ? links.zip : undefined}
-            download={`${value.stem}-4x6.zip`}
+            href={allowed ? zipUrl : undefined}
+            download={`${stem}.zip`}
             {...downloadProps}
           >
             <Icon name="zip" size={16} /> PDF + PNG

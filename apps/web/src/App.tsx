@@ -16,7 +16,12 @@ import {
   getEngine,
   type Conversion,
 } from "./lib/conversion.js";
-import { friendlyError, validateFile, validateLink } from "./lib/input.js";
+import {
+  fileStem,
+  friendlyError,
+  validateFile,
+  validateLink,
+} from "./lib/input.js";
 
 const PROGRESS: Record<Progress["stage"], string> = {
   loading: "Opening your PDF",
@@ -27,6 +32,7 @@ const PROGRESS: Record<Progress["stage"], string> = {
 };
 type Source = { name: string; bytes: Uint8Array };
 export function App() {
+  const [outputName, setOutputName] = useState("");
   const [source, setSource] = useState<Source>();
   const [result, setResult] = useState<Conversion>();
   const [analysis, setAnalysis] = useState<Analysis>();
@@ -130,6 +136,7 @@ export function App() {
       const value = await loadSource(job.controller.signal);
       if (!active(job.id)) return;
       setSource(value);
+      setOutputName(`${fileStem(value.name)}-4x6`);
       await format(value, job);
     } catch (e) {
       if (active(job.id)) setError(friendlyError(e));
@@ -295,6 +302,8 @@ export function App() {
             ) : result ? (
               <ResultPanel
                 value={result}
+                outputName={outputName}
+                onOutputName={setOutputName}
                 name={source?.name ?? "Your PDF"}
                 onReset={reset}
                 onEdit={() => void edit()}

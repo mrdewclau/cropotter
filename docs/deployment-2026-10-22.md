@@ -9,3 +9,15 @@ The revision replaces the floating stamp with a PDF → crop → 4 × 6 process 
 Rollback image is preserved as `cropotter:before-process-20261022` (previous image `sha256:c69e6a6963f884c00ba8b80edb420873317b3854a58f5c481b3b08a90dbec0b6`). Retag that image to `cropotter:local`, then run `docker compose -p cropotter -f deploy/compose.yaml up -d --no-build` from `/opt/cropotter` and verify `/healthz`. No DNS rollback is needed for this revision.
 
 Live HTTPS acceptance passed **8/8** checks across Chromium and iPhone SE WebKit emulation: viewport/control fit, process phases and pause/resume, actual PDF/PNG/ZIP downloads and reduced-motion/no-WebGL conversion.
+
+## Editable filename release
+
+Filename controls apply to PDF/PNG/ZIP, archive entries and shared PDFs. Local Docker image ID: `sha256:1b7c9f785e75e4a7f8959d1e2d715a5b9d90df9ccc48768acd55f30dc5db59bf`; release tag `cropotter:release-20261022-filenames`. Client entry `index-DUGWRYIH.js`, CSS `index-B4b1gbX4.css`. Rollback image: `cropotter:before-filenames-20261022` (the previous process-demonstration release). Use the same retag/Compose/health procedure above. DNS, proxy and unrelated applications are unchanged.
+
+Final filename-release production-build browser acceptance: **23 passed, 3 expected skips** across Chromium and iPhone SE WebKit emulation. Live HTTPS filename/download/archive acceptance: **2/2 passed**. Container health verified after deployment. Updated result screenshots show the live File name control.
+
+Focus-ring correction release: local image `sha256:3739bfe4d823613c4025bfa882e2341087fe372eaec83d994394e9693fa54d04`, tag `cropotter:release-20261022-filenames-focus`; CSS `index-D5XzLwCa.css`, entry `index-DEUZR5xV.js`. Local focused regression and accessibility checks passed 4/4. The correction only insets download-panel focus outlines.
+
+Final dropdown-spacing release: local image `sha256:38ff7930d23972ed061e49039f1c3effa9dd6585a5349235993ff8f695550739`, tag `cropotter:release-20261022-filenames-spacing`; CSS `index-DkazY_tS.css`, entry `index-CQrqoAFq.js`. It reserves text/arrow spacing consistently across desktop and phone. Local focused checks passed 2/2.
+
+Final live dropdown-spacing and focus regression: **2/2 passed**, desktop Chromium and iPhone WebKit emulation; live screenshots visually checked. Container healthy.

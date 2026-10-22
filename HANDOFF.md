@@ -64,3 +64,11 @@ Keep this file current when deployment or acceptance status changes.
 ## Latest visual revision — 2026-10-22
 
 Replaced the tiny floating stamp with a readable synthetic full-page PDF → orange crop → finished 4 × 6 label sequence. Equal-height upload and explanation cards align on desktop; the navy demonstration board has synchronized captions, steps and Pause/Play. Reduced-motion and unavailable/lost WebGL use a fitted static label. Compact phone layouts preserve the upload workspace; selecting the link form prioritizes that form on narrow/short screens. The user has not yet reviewed this revision. Website unit/service tests: 39/39; typecheck and production build passed. Final production-build browser suite: 21 passed, 3 expected skips. See verification notes for live checks.
+
+## Editable download names — 2026-10-22
+
+The result panel includes a File name field initialized from the source basename plus `-4x6`. The chosen base name is used by PDF, PNG, ZIP and Share PDF; automatic extensions prevent duplicate `.pdf`/`.png`/`.zip` endings. Multiple PNG labels use distinct numbered names; ZIP contents use the chosen base plus page/DPI suffixes. Names commit on blur or Enter, remove unsupported path characters and fall back to `label` if empty. Edits survive DPI changes and crop review; a new source initializes a new name. ZIP links point to renamed contents, including for Save Link As. No PDF content or output geometry changes.
+
+Download-panel focus rings are inset so bounded-pane overflow does not clip their edges. Preserve this when changing control styles.
+
+PNG resolution uses a consistent 18px chevron, inset 14px from the right edge, with 44px reserved text padding. Preserve that space on phones; native select arrows previously crowded the focus border.
