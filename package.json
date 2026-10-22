@@ -24,6 +24,9 @@
     "build:agents": "npm run build:local && node tools/agent-distribution/build.mjs",
     "test:local": "npm test --workspace packages/local",
     "typecheck:local": "npm run typecheck --workspace packages/local",
+    "build:claude-extension": "npm run build:local && node tools/claude-extension/build.mjs",
+    "test:claude-extension": "node --test tools/claude-extension/*.test.mjs",
+    "verify:claude-extension": "node tools/claude-extension/verify.mjs",
     "test:agents": "node --test tools/agent-distribution/*.test.mjs",
     "verify:agents": "node tools/agent-distribution/verify.mjs",
     "verify:local:packed": "node packages/local/scripts/verify-packed.mjs",
@@ -33,6 +36,7 @@
     "typecheck:web": "tsc --noEmit -p apps/web/tsconfig.json"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
     "@axe-core/playwright": "^4.11.0",
     "@napi-rs/canvas": "1.0.13",
     "@playwright/test": "1.64.1",
@@ -54,5 +58,8 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "three": "^0.184.0"
+  },
+  "overrides": {
+    "tmp": "0.2.7"
   }
 }

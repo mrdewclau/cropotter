@@ -1,6 +1,6 @@
 import { constants } from "node:fs";
 import { open, lstat, mkdir, link, unlink } from "node:fs/promises";
-import { resolve, join, parse, relative, sep } from "node:path";
+import { resolve, join, parse, relative, sep, isAbsolute } from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { zipSync } from "fflate";
 import { z } from "zod";
@@ -11,7 +11,7 @@ import type {
   Selection,
   ValidationReport,
 } from "../../engine/src/types.js";
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.2";
 const INPUT_LIMIT = 25 * 1024 * 1024,
   OUTPUT_LIMIT = 64 * 1024 * 1024,
   RESOURCE_LIMIT = 128 * 1024 * 1024;
@@ -190,6 +190,31 @@ type FileArtifact = {
   report?: ValidationReport;
 };
 export class LocalService {
+  constructor(private options: { workspace?: string } = {}) {}
+  private async checkWorkspace(path: string) {
+    if (this.options.workspace === undefined) return;
+    const root = await assertNoSymlinks(this.options.workspace);
+    try {
+      if (
+        !isAbsolute(this.options.workspace) ||
+        !(await lstat(root)).isDirectory()
+      )
+        throw new Error("Invalid root");
+    } catch {
+      throw new LocalError(
+        "INVALID_WORKSPACE",
+        "Choose an existing absolute workspace folder in the extension settings.",
+      );
+    }
+    const full = localPath(path);
+    const rel = relative(root, full);
+    if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel))
+      throw new LocalError(
+        "OUTSIDE_WORKSPACE",
+        "Keep the input PDF and output folder inside the workspace selected in extension settings.",
+      );
+    await assertNoSymlinks(full);
+  }
   private tail: Promise<unknown> = Promise.resolve();
   private resources = new Map<
     string,
@@ -203,6 +228,7 @@ export class LocalService {
   }
   analyze(input: string, signal?: AbortSignal) {
     return this.serial(async () => {
+      await this.checkWorkspace(input);
       const bytes = await boundedRead(input, INPUT_LIMIT, signal),
         engine = await createNodeEngine();
       try {
@@ -226,6 +252,8 @@ export class LocalService {
           "Check conversion options, formats, DPI and crop/page decisions.",
         );
       const opts = parsed.data;
+      await this.checkWorkspace(opts.input);
+      await this.checkWorkspace(opts.out);
       const bytes = await boundedRead(opts.input, INPUT_LIMIT, signal),
         engine = await createNodeEngine(),
         name = stem(opts.name);
@@ -454,9 +482,32 @@ async function writeOutputs(
     for (let i = 0; i < files.length; i++) {
       checkAbort(signal);
       const dest = join(dir, files[i].name);
-      await link(staged[i], dest);
-      published.push(dest);
+      try {
+        await link(staged[i], dest);
+        published.push(dest);
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        if (code !== "ENOTSUP" && code !== "EOPNOTSUPP") throw error;
+        // ExFAT has no hard links. Exclusive creation still prevents replacement;
+        // files become visible during writing, and failures roll back our outputs.
+        const handle = await open(
+          dest,
+          constants.O_WRONLY |
+            constants.O_CREAT |
+            constants.O_EXCL |
+            constants.O_NOFOLLOW,
+          0o600,
+        );
+        published.push(dest);
+        try {
+          await handle.writeFile(files[i].data);
+          await handle.sync();
+        } finally {
+          await handle.close();
+        }
+      }
     }
+    checkAbort(signal);
   } catch (error) {
     await Promise.all(published.map((path) => unlink(path).catch(() => {})));
     if ((error as NodeJS.ErrnoException).code === "EEXIST")

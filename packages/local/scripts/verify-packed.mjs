@@ -137,7 +137,7 @@ try {
   console.log(
     JSON.stringify({
       status: "passed",
-      package: "cropotter-local@0.1.0",
+      package: `cropotter-local@${converted.version}`,
       cleanInstall: true,
       cli: ["analysis", "pdf-288x432pt", "png-1200x1800", "zip"],
       mcp: [

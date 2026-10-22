@@ -1,0 +1,12 @@
+{
+  "name": "cropotter-desktop-bundle",
+  "version": "0.1.2",
+  "private": true,
+  "license": "MIT",
+  "description": "Locked dependencies for the self-contained CropOtter macOS extension",
+  "dependencies": {
+    "cropotter-local": "file:cropotter-local-0.1.2.tgz",
+    "@napi-rs/canvas-darwin-arm64": "1.0.13",
+    "@napi-rs/canvas-darwin-x64": "1.0.13"
+  }
+}

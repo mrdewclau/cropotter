@@ -8,6 +8,7 @@ import {
   readdir,
   mkdir,
   symlink,
+  copyFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -15,6 +16,58 @@ import { LocalService } from "../src/service.js";
 const input = fileURLToPath(
   new URL("../../../apps/web/public/sample-label.pdf", import.meta.url),
 );
+it("restricted service rejects outside inputs, sibling-prefix outputs and symlinks before processing", async () => {
+  const dir = await mkdtemp(join(await realpath(tmpdir()), "cropotter-scope-"));
+  try {
+    const workspace = join(dir, "allowed");
+    await mkdir(workspace);
+    const localInput = join(workspace, "sample.pdf");
+    await copyFile(input, localInput);
+    const service = new LocalService({ workspace });
+    await expect(service.analyze(input)).rejects.toMatchObject({
+      code: "OUTSIDE_WORKSPACE",
+    });
+    await expect(
+      service.convert({
+        input: localInput,
+        out: join(dir, "allowed-sibling", "out"),
+      }),
+    ).rejects.toMatchObject({ code: "OUTSIDE_WORKSPACE" });
+    await symlink(input, join(workspace, "alias.pdf"));
+    await expect(
+      service.analyze(join(workspace, "alias.pdf")),
+    ).rejects.toMatchObject({ code: "UNSAFE_PATH" });
+    expect(await readdir(dir)).toEqual(["allowed"]);
+    expect((await service.analyze(localInput)).analysis.status).toBe("ready");
+    const result = await service.convert({
+      input: localInput,
+      out: join(workspace, "output"),
+      formats: ["pdf"],
+    });
+    expect(result.status).toBe("ready");
+    expect(await readdir(join(workspace, "output"))).toEqual([
+      "label-manifest.json",
+      "label.pdf",
+    ]);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+it("restricted service refuses a missing or symlink workspace without expanding access", async () => {
+  const dir = await mkdtemp(join(await realpath(tmpdir()), "cropotter-root-"));
+  try {
+    await expect(
+      new LocalService({ workspace: join(dir, "missing") }).analyze(input),
+    ).rejects.toMatchObject({ code: "INVALID_WORKSPACE" });
+    await symlink(dir, join(dir, "alias"));
+    await expect(
+      new LocalService({ workspace: join(dir, "alias") }).analyze(input),
+    ).rejects.toMatchObject({ code: "UNSAFE_PATH" });
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
 it("manual selections require acknowledgement even if barcode validation is ready", async () => {
   const dir = await mkdtemp(
     join(await realpath(tmpdir()), "cropotter-manual-"),

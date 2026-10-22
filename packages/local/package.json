@@ -1,6 +1,6 @@
 {
   "name": "cropotter-local",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Local CropOtter label conversion CLI and stdio MCP server",
   "license": "MIT",
   "type": "module",
