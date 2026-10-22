@@ -1,7 +1,6 @@
 import {
   PDFArray,
   PDFDict,
-  PDFDocument,
   PDFName,
   PDFNull,
   PDFNumber,
@@ -10,6 +9,7 @@ import {
 } from "pdf-lib";
 import { checkAbort, EngineError } from "./errors.js";
 import type { Limits } from "./types.js";
+import { inflateBounded, loadBoundedPdf } from "./pdf-load.js";
 
 const white = (c: number) =>
   c === 0 || c === 9 || c === 10 || c === 12 || c === 13 || c === 32;
@@ -68,47 +68,6 @@ export function hasInlineImage(bytes: Uint8Array): boolean {
   }
   return false;
 }
-async function inflate(
-  bytes: Uint8Array,
-  cap: number,
-  signal?: AbortSignal,
-): Promise<Uint8Array> {
-  const reader = new Blob([new Uint8Array(bytes).buffer])
-    .stream()
-    .pipeThrough(new DecompressionStream("deflate"))
-    .getReader();
-  const abort = () => {
-    void reader.cancel().catch(() => {});
-  };
-  signal?.addEventListener("abort", abort, { once: true });
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    while (true) {
-      checkAbort(signal);
-      const item = await reader.read();
-      if (item.done) break;
-      size += item.value.length;
-      if (size > cap)
-        throw new EngineError(
-          "LIMIT_EXCEEDED",
-          "The decoded PDF content exceeds the processing limit.",
-        );
-      chunks.push(item.value);
-    }
-    checkAbort(signal);
-    const result = new Uint8Array(size);
-    let offset = 0;
-    for (const chunk of chunks) {
-      result.set(chunk, offset);
-      offset += chunk.length;
-    }
-    return result;
-  } finally {
-    await reader.cancel().catch(() => {});
-    signal?.removeEventListener("abort", abort);
-  }
-}
 function joined(chunks: Uint8Array[]): Uint8Array {
   if (chunks.length === 1) return chunks[0];
   const result = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
@@ -125,11 +84,7 @@ export async function preflightPdf(
   signal?: AbortSignal,
 ): Promise<void> {
   try {
-    const source = await PDFDocument.load(bytes, {
-      ignoreEncryption: true,
-      updateMetadata: false,
-      throwOnInvalidObject: true,
-    });
+    const source = await loadBoundedPdf(bytes, limits, signal);
     if (source.isEncrypted)
       throw new EngineError(
         "ENCRYPTED_PDF",
@@ -259,7 +214,7 @@ export async function preflightPdf(
                 "UNSUPPORTED_CONTENT",
                 "This PDF uses an unsupported content-stream filter. Export a fresh PDF copy.",
               );
-            data = await inflate(data, limits.maxBytes - total, signal);
+            data = await inflateBounded(data, limits.maxBytes - total, signal);
           }
           total += data.length;
           if (total > limits.maxBytes)

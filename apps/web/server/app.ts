@@ -5,6 +5,7 @@ import {
 } from "node:http";
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
+import { isIP } from "node:net";
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fetchPublicPdf } from "./pdf-fetch.js";
@@ -34,6 +35,7 @@ const CSP =
 interface AppOptions {
   clientDirectory?: string;
   fetchPdf?: typeof fetchPublicPdf;
+  trustProxy?: boolean;
 }
 function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, {
@@ -74,6 +76,12 @@ export function createApp(options: AppOptions = {}) {
       fileURLToPath(new URL("../client", import.meta.url)),
   );
   const fetchPdf = options.fetchPdf ?? fetchPublicPdf;
+  const trustProxy =
+    options.trustProxy ?? process.env.TRUST_CROPOTTER_PROXY === "1";
+  const clients = new Map<
+    string,
+    { tokens: number; updated: number; active: number }
+  >();
   let active = 0,
     tokens = 30,
     last = Date.now();
@@ -127,7 +135,42 @@ export function createApp(options: AppOptions = {}) {
             "INVALID_REQUEST",
             "Paste a direct PDF link and try again.",
           );
+        const forwarded = req.headers["x-cropotter-client-ip"];
+        // Only the loopback-only production listener enables this header; Caddy overwrites it.
+        const clientIp =
+          trustProxy && typeof forwarded === "string" && isIP(forwarded)
+            ? forwarded
+            : (req.socket.remoteAddress ?? "unknown");
         const now = Date.now();
+        let client = clients.get(clientIp);
+        if (!client) {
+          if (clients.size >= 4096) {
+            for (const [ip, value] of clients)
+              if (!value.active && now - value.updated > 600000)
+                clients.delete(ip);
+          }
+          if (clients.size >= 4096)
+            throw new LinkError(
+              429,
+              "BUSY",
+              "The link service is busy. Upload your PDF or try again later.",
+            );
+          client = { tokens: 6, updated: now, active: 0 };
+          clients.set(clientIp, client);
+        }
+        client.tokens = Math.min(
+          6,
+          client.tokens + (now - client.updated) / 6000,
+        );
+        client.updated = now;
+        if (client.tokens < 1 || client.active >= 2) {
+          res.setHeader("Retry-After", "6");
+          throw new LinkError(
+            429,
+            "CLIENT_LIMIT",
+            "Please wait a moment before opening another link, or upload your PDF.",
+          );
+        }
         tokens = Math.min(30, tokens + (now - last) / 500);
         last = now;
         if (active >= 4 || tokens < 1)
@@ -137,6 +180,8 @@ export function createApp(options: AppOptions = {}) {
             "The link service is busy. Try again in a moment or upload your PDF.",
           );
         tokens--;
+        client.tokens--;
+        client.active++;
         active++;
         const abort = new AbortController();
         let deliveryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -145,6 +190,7 @@ export function createApp(options: AppOptions = {}) {
           if (released) return;
           released = true;
           active--;
+          client.active--;
           clearTimeout(deliveryTimer);
           res.off("finish", release);
           res.off("close", close);

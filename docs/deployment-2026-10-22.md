@@ -31,3 +31,11 @@ Live HTTPS preview/centering acceptance: **3 passed, 1 expected compact-phone ba
 Global boxed-control focus correction: local image `sha256:5e7d033a15fb834ffbb3a6098772875b9fa92255a4c8ac59937c195dd6b520a5`, tag `cropotter:release-20261022-global-focus`, CSS `index-D7xNrZVd.css`, entry `index-0i3yuuQ1.js`. Rollback image `cropotter:before-global-focus-20261022`; same Compose rollback procedure. Fix extends inset outlines to boxed controls across the app, including the PDF-link form.
 
 Live global-focus acceptance: **4/4 passed** across Chromium and iPhone WebKit emulation for PDF-link and download controls. The focused link field was visually checked on the live site; proof is `docs/images/link-focus.png`. Container healthy.
+
+## Security release
+
+Runtime image `sha256:d3b27a8e36d2010d66569917ea5f479684c32671e48beb05d3b35647ba9c9d58`, tag `cropotter:release-20261022-security`. Node 24.22.1 pinned by official base digest; client entry `index-Bpy53eAo.js`, engine browser chunk `browser-Ciazq4ox.js`. Container is healthy, nonroot/read-only, 512 MiB memory, one CPU, 128 processes, no OOM events or restarts. Previous runtime preserved as `cropotter:before-security-20261022`.
+
+Caddy now runs `/usr/local/bin/caddy-2.11.7-go1.26.10` via the original service account and the checked-in override. Binary SHA-256 `73c7e2d865ae4222ec23eceba00a8614b39c2f24326ff8226504d3c465986bc1`; official Caddy 2.11.7 source, Go 1.26.10, x/net 0.60.0. Reproducible build/scan inputs under `deploy/caddy-build`. HSTS/body/header/time bounds, explicit proxy identity overwrite and SNI/Host matching are active; Caddy 256 MiB / one CPU / 128 task limits verified. The old config is `/etc/caddy/Caddyfile.before-security-20261022`; proxy rollback requires reverting config/override and explicitly restarting, but would restore old security exposure and should only be an emergency measure. ACME certificates/state and DNS were preserved.
+
+Host ca-certificates updated to 20260816ubuntu0.24.04.1. Shared-host system upgrades/reboot remain pending coordinated approval. See [security report](security-review-2026-10-22.md) for scope, findings and final acceptance.

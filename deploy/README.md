@@ -17,7 +17,7 @@ Inspect the connected account and intended host first: existing applications, re
 From the checked-out release root:
 
 ```sh
-docker compose -p cropotter -f deploy/compose.yaml build
+docker compose -p cropotter -f deploy/compose.yaml build --pull
 docker compose -p cropotter -f deploy/compose.yaml up -d
 curl --fail http://127.0.0.1:8080/healthz
 ```
@@ -37,3 +37,11 @@ Keep the previous release/image available for rollback. Repoint the service to t
 ## Building behind a managed TLS proxy
 
 The Docker build optionally accepts a BuildKit CA secret named `build_ca`. Use it only when the build environment provides a trusted CA file. The CA is mounted for `npm ci` and is not copied into the runtime image. Standard DigitalOcean builds do not need this option. Do not disable TLS validation.
+
+## Security release requirements
+
+The Dockerfile pins Node 24.22.1 and an official image digest; review Node security advisories and update both together. `--pull` prevents silent reuse of a mutable cached base. Never infer a patched runtime from a floating tag; inspect `process.versions` in the running container. Compose bounds CropOtter to 512 MiB, one CPU and 128 processes, with a 256 MiB JS heap. Proxy only the loopback listener.
+
+`TRUST_CROPOTTER_PROXY=1` is safe only with that loopback boundary and Caddy overwriting `X-CropOtter-Client-IP` from `{remote_host}`. The link endpoint has bounded per-client state, a 6-request burst with one refill per 6 seconds, 2 active fetches per client, 4 active fetches globally and delivery timeouts. It is not a DDoS shield. Keep the Caddy header/body/timeouts/HSTS rules. No raw request bodies or signed URLs should be logged. Shared-host package upgrades/reboots require coordinated maintenance; do not restart unrelated apps as part of a CropOtter deployment.
+
+The 2026-10-22 audit upgraded the reverse proxy to Caddy 2.11.7 rebuilt with Go 1.26.10 and x/net 0.60.0; the upstream 2.11.7 binary predates those fixes. `deploy/caddy-build` contains pinned, reproducible build inputs and verification instructions; the systemd override runs `/usr/local/bin/caddy-2.11.7-go1.26.10` under the original Caddy service account and limits it to 256 MiB / one CPU / 128 tasks. Preserve the existing `/var/lib/caddy` ACME state and validate the actual configuration before restarting. Updating only apt's older Caddy package will not replace this explicitly selected binary; review/rebuild it when upstream security releases change.

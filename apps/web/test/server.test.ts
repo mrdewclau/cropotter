@@ -133,7 +133,7 @@ describe("public PDF URL policy", () => {
 describe("HTTP service", () => {
   it("keeps response slots until slow readers finish or disconnect", async () => {
     const fetchPdf = vi.fn(async () => new Uint8Array(25 * 1024 * 1024));
-    const server = createApp({ fetchPdf });
+    const server = createApp({ fetchPdf, trustProxy: true });
     await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
     const a = server.address();
     if (!a || typeof a === "string") throw Error("address");
@@ -148,7 +148,10 @@ describe("HTTP service", () => {
             path: "/api/pdf",
             method: "POST",
             agent: false,
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "X-CropOtter-Client-IP": `203.0.113.${clients.length + 1}`,
+            },
           },
           (res) => {
             res.pause();
@@ -290,4 +293,61 @@ it("serves preview MP4s with video MIME, byte ranges and HEAD support", async ()
     await new Promise<void>((r) => server.close(() => r()));
     await rm(root, { recursive: true, force: true });
   }
+});
+
+it("limits one link client without exhausting another and ignores untrusted identity headers", async () => {
+  for (const trustProxy of [true, false]) {
+    const fetchPdf = vi.fn(async () => pdf);
+    const server = createApp({ fetchPdf, trustProxy });
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+    const address = server.address();
+    if (!address || typeof address === "string") throw Error("address");
+    const url = `http://127.0.0.1:${address.port}/api/pdf`;
+    const send = async (ip: string) => {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CropOtter-Client-IP": ip,
+        },
+        body: JSON.stringify({ url: "https://example.com/label.pdf" }),
+      });
+      await res.arrayBuffer();
+      return res.status;
+    };
+    try {
+      for (let i = 0; i < 6; i++) expect(await send("203.0.113.1")).toBe(200);
+      expect(await send("203.0.113.1")).toBe(429);
+      expect(await send("203.0.113.2")).toBe(trustProxy ? 200 : 429);
+    } finally {
+      server.closeAllConnections();
+      await new Promise<void>((r) => server.close(() => r()));
+    }
+  }
+});
+
+it("handles an already-cancelled fetch without an unhandled resolver rejection", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { pathToFileURL } = await import("node:url");
+  const { resolve } = await import("node:path");
+  const moduleUrl = pathToFileURL(resolve("apps/web/server/pdf-fetch.ts")).href;
+  const child = spawnSync(
+    process.execPath,
+    [
+      "--import",
+      "tsx",
+      "--input-type=module",
+      "-e",
+      `
+    import { fetchPublicPdf } from ${JSON.stringify(moduleUrl)};
+    process.on('unhandledRejection', () => { process.exitCode = 9; });
+    try { await fetchPublicPdf('https://example.com/a.pdf', {
+      signal: AbortSignal.abort(), resolve: () => Promise.reject(new Error('synthetic rejection'))
+    }); } catch {}
+    await new Promise(resolve => setTimeout(resolve, 30));
+  `,
+    ],
+    { encoding: "utf8", timeout: 5000 },
+  );
+  expect(child.status, child.stderr).toBe(0);
 });

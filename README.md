@@ -20,7 +20,7 @@
 
 ---
 
-CropOtter turns oversized or awkward shipping-label PDFs into portrait **4 × 6 inch labels with at least ⅛ inch of white space on every side**. It preserves proportions, keeps vector text where possible, and asks for review when a crop is uncertain.
+CropOtter turns oversized or awkward shipping-label PDFs into portrait **4 × 6 inch labels with at least ⅛ inch of white space on every side**. It preserves proportions and asks for review when a crop is uncertain. Exported PDFs contain only the visible label pixels at 300 DPI, so cropped-out source content, hidden PDF objects and source attachments are not carried into downloads.
 
 Live at **[cropotter.com](https://cropotter.com)** on DigitalOcean. One viewport-fitting app shell: upload, review and download, with a contained animated guide. No scrolling landing page. See [deployment verification](docs/deployment-2026-10-21.md) or [HANDOFF.md](HANDOFF.md) to continue development.
 

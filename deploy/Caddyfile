@@ -1,8 +1,30 @@
+{
+  servers {
+    protocols h1 h2
+    max_header_size 16KB
+    strict_sni_host on
+    timeouts {
+      read_header 10s
+      read_body 10s
+      write 45s
+      idle 1m
+    }
+  }
+}
+
 cropotter.com {
+  header Strict-Transport-Security "max-age=31536000"
   encode zstd gzip
-  reverse_proxy 127.0.0.1:8080
+  @pdf_api path /api/pdf
+  request_body @pdf_api {
+    max_size 8192
+  }
+  reverse_proxy 127.0.0.1:8080 {
+    header_up X-CropOtter-Client-IP {remote_host}
+  }
 }
 
 www.cropotter.com {
+  header Strict-Transport-Security "max-age=31536000"
   redir https://cropotter.com{uri} permanent
 }

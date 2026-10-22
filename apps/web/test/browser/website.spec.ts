@@ -516,11 +516,20 @@ test("has no horizontal overflow from small phones to large desktops, including 
 test("passes accessibility checks and preserves visible keyboard focus", async ({
   page,
   isMobile,
+  browserName,
 }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
   if (!isMobile) {
-    await page.keyboard.press("Tab");
+    // Safari on macOS uses Option-Tab for links with default keyboard settings.
+    await expect(
+      page.getByRole("button", { name: "Help", exact: true }),
+    ).toBeVisible();
+    await page.keyboard.press(
+      browserName === "webkit" && process.platform === "darwin"
+        ? "Alt+Tab"
+        : "Tab",
+    );
     await expect(
       page.getByRole("link", { name: "Skip to label formatter" }),
     ).toBeFocused();

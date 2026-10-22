@@ -90,3 +90,9 @@ Live HTTPS preview/centering acceptance: **3 passed, 1 expected compact-phone ba
 The PDF-link input's focus outline was clipped 7px on both horizontal sides by its bounded source pane. A live regression failed before the fix. Boxed controls now keep their focus outlines inside their own borders throughout the app, rather than limiting that treatment to result actions. Text-link styles retain their separate treatment. Production build passed; focused browser regressions and axe accessibility checks passed **6/6** in Chromium and iPhone WebKit emulation. No layout geometry or conversion logic changed.
 
 Live global-focus acceptance: **4/4 passed** across Chromium and iPhone WebKit emulation for PDF-link and download controls. The focused link field was visually checked on the live site; proof is `docs/images/link-focus.png`. Container healthy.
+
+## Security review — 2026-10-22
+
+See [security review](security-review-2026-10-22.md) for scope, findings, corrected privacy/parser behavior and shared-host maintenance limits. Engine 61/61, website/service 43/43, both typechecks, engine build and production web build passed. Engine Chromium 3/3 passed. Source review reproduced and corrected recoverable cropped-out PDF data and pre-budget ObjStm expansion; exports are now fresh 300 DPI raster PDFs. Unit regressions cover canonical source sanitization, object/depth/decode caps, per-client quota fairness, forged identity headers and pre-aborted promise rejection.
+
+Final security-release browser matrix: **76 passed, 9 expected skips** across all 5 browser projects. Live conversion/download/crop/name checks: **6/6 passed**. Seventeen bounded post-fix hostile probes passed; legitimate PDF-link fetch succeeded. See the security report for the initial setup failures, exact skip reasons and remaining shared-host maintenance.

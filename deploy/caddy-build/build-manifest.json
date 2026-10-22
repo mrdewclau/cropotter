@@ -1,0 +1,49 @@
+{
+  "artifact": "caddy-linux-amd64",
+  "caddy_version": "v2.11.7",
+  "caddy_tag_commit": "72dd0fb067f6d7826c7f79907670ba4a713bfe37",
+  "go_version": "go1.26.10",
+  "target": {
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "0"
+  },
+  "x_net_version": "v0.60.0",
+  "module_proxy": "https://proxy.golang.org",
+  "checksum_database": "sum.golang.org",
+  "build_flags": [
+    "-mod=readonly",
+    "-trimpath",
+    "-buildvcs=false",
+    "-ldflags=-s -w"
+  ],
+  "binary_sha256": "73c7e2d865ae4222ec23eceba00a8614b39c2f24326ff8226504d3c465986bc1",
+  "binary_bytes": 58060962,
+  "reproducibility": "Two local builds produced identical bytes",
+  "caddy_main": "Byte-identical official v2.11.7 cmd/caddy/main.go, including time/tzdata and modules/standard",
+  "native_smoke_version": "v2.11.7 h1:yj0Y4fYZGPkSvibBJ1sTWE33xC0fxztVyXEW5iIdUT4=",
+  "native_standard_modules": 135,
+  "scanner": "golang.org/x/vuln/cmd/govulncheck@v1.9.0",
+  "binary_scan": {
+    "exit": 3,
+    "findings": [
+      "GO-2026-5932"
+    ]
+  },
+  "linux_source_scan": {
+    "exit": 0,
+    "reachable_findings": 0,
+    "imported_package_findings": 0,
+    "required_module_findings": [
+      "GO-2026-5932"
+    ],
+    "openpgp_import_present": false
+  },
+  "config_adapter_check": {
+    "exit": 0,
+    "config_sha256": "d7b54b067b53344edac433246efc69f1b38f8a942c36e5adc0bee94daedfe3c2",
+    "runtime": "Equivalent local darwin/arm64 build; Linux runtime validation remains deployment-stage check"
+  },
+  "created_utc": "2026-10-22T05:07:38.620217+00:00"
+}

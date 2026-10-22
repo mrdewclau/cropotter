@@ -13,7 +13,7 @@ Target everyday flow after initial printer setup: ingest PDF or URL → identify
 - PDF pages measure exactly 288 × 432 PDF points (4 × 6 inches).
 - The confirmed margin is at least 1/8 inch (3.175 mm / 9 PDF points) of white space on every side. No decorative line is added.
 - Preserve aspect ratio. Never stretch labels or clip barcode quiet zones. Fit the detected label inside the 270 × 414 point usable area.
-- Preserve PDF text and vector barcodes when possible. Render scanned input at native effective quality; upscaling does not restore missing detail.
+- Privacy gate: build exported PDFs from the selected visible label pixels at 300 DPI in a fresh document. Do not copy source PDF objects or pass through canonical PDFs, since hidden/cropped-out data can survive. Preserve proportions and verify barcode decoding; upscaling does not restore missing detail.
 - Export PDF, lossless PNG, and JPG. Offer 203 and 300 DPI raster output, respectively 812 × 1218 and 1200 × 1800 pixels, with density metadata. The ITPP130B profile uses its advertised 203 DPI; 300 DPI export does not increase that printer's resolution. JPG is a convenience export; PDF and PNG are preferred for barcodes.
 - Round raster safe margins inward to protect the white border: at least 26 pixels at 203 DPI and 38 pixels at 300 DPI. Pixel quantization cannot represent an exact 1/8 inch at either resolution. Keep exact physical geometry in the PDF and calibrate device dot pitch separately.
 - Distinguish true 4 × 6 inch stock (101.6 × 152.4 mm) from 100 × 150 mm stock. Never silently substitute the latter. The requested default output remains true 4 × 6; select and label a separate physical media profile only when needed.
@@ -35,7 +35,7 @@ A hosted conversion service simplifies browser URL fetching but introduces opera
 2. Inspect the PDF page boxes, rotation, text, vector marks, and raster ink bounds. Normalize coordinates before selecting a label region.
 3. Detect a coherent label rectangle, retaining surrounding barcode quiet zones. A whole-page trim is insufficient when an invoice or instructions share the page.
 4. Use confidence checks. Automatically export only unambiguous detections. For multiple labels or ambiguous layouts, require selection or crop adjustment in a minimal preview. Never silently discard other pages.
-5. Place the selected region on an exact 4 × 6 page with the agreed margin, preserving vectors and proportions. Raster outputs derive from this final PDF geometry.
+5. Place the selected region on an exact 4 × 6 page with the agreed margin, preserving proportions. The visible crop is rasterized at 300 DPI into a fresh PDF to exclude hidden source objects; raster outputs derive from this final PDF geometry.
 6. Validate output geometry, margin, ink containment, raster dimensions, and barcode readability where supported before presenting exports. Report when source quality prevents reliable validation.
 
 ## Platform boundaries

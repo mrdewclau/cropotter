@@ -1,11 +1,119 @@
 import { describe, expect, it } from "vitest";
-import { PDFDocument, PDFName, PDFNumber, PDFRawStream, rgb } from "pdf-lib";
+import {
+  PDFDocument,
+  PDFName,
+  PDFNumber,
+  PDFRawStream,
+  PDFString,
+  decodePDFRawStream,
+  rgb,
+} from "pdf-lib";
 import { readFile } from "node:fs/promises";
 import { createNodeEngine, createNodeRuntime } from "../src/adapters/node.js";
 import { validatePrepared } from "../src/outputs.js";
+import { saveCanonical } from "../src/canonical.js";
 import { barcodePng, fixture, labelPdf, scannedLabelPng } from "./fixtures.js";
 
 describe("safety and coordinate regression cases", () => {
+  it("removes recoverable content outside a crop and on skipped pages", async () => {
+    const source = await PDFDocument.create();
+    const page = source.addPage([792, 612]);
+    const label = await source.embedPdf(await labelPdf(), [0]);
+    page.drawPage(label[0], { x: 36, y: 90 });
+    page.drawText("SYNTHETIC OUTSIDE CROP", { x: 400, y: 550, size: 12 });
+    source
+      .addPage([288, 432])
+      .drawText("SYNTHETIC SKIPPED PAGE", { x: 20, y: 200, size: 10 });
+    const engine = await createNodeEngine();
+    try {
+      const result = await engine.prepare(await source.save(), [
+        { pageIndex: 0, region: { x: 36, y: 90, width: 288, height: 432 } },
+        { pageIndex: 1, skip: true },
+      ]);
+      const output = await PDFDocument.load(result.prepared!.pdf);
+      const decoded = output.context
+        .enumerateIndirectObjects()
+        .filter(([, object]) => object instanceof PDFRawStream)
+        .map(([, object]) =>
+          new TextDecoder("latin1").decode(
+            decodePDFRawStream(object as PDFRawStream).decode(),
+          ),
+        )
+        .join("\n")
+        .toLowerCase();
+      for (const marker of [
+        "SYNTHETIC OUTSIDE CROP",
+        "SYNTHETIC SKIPPED PAGE",
+      ]) {
+        expect(decoded.includes(marker.toLowerCase()), marker).toBe(false);
+        expect(
+          decoded.includes(Buffer.from(marker).toString("hex")),
+          marker,
+        ).toBe(false);
+      }
+      expect(output.getPageCount()).toBe(1);
+      expect(output.getPage(0).getSize()).toEqual({ width: 288, height: 432 });
+      expect(
+        result.prepared!.report.barcodes.every(
+          (check) => check.status === "verified",
+        ),
+      ).toBe(true);
+    } finally {
+      await engine.dispose();
+    }
+  });
+  it("rebuilds canonical inputs without attachments, actions or unused resources", async () => {
+    const engine = await createNodeEngine();
+    try {
+      const first = (await engine.prepare(await labelPdf())).prepared!;
+      const altered = await PDFDocument.load(first.pdf, {
+        updateMetadata: false,
+      });
+      await altered.attach(
+        new TextEncoder().encode("SYNTHETIC ATTACHMENT"),
+        "synthetic.txt",
+      );
+      altered.catalog.set(
+        PDFName.of("OpenAction"),
+        altered.context.obj({
+          S: "JavaScript",
+          JS: PDFString.of("app.alert('synthetic')"),
+        }),
+      );
+      altered.getPage(0).node.setXObject(
+        PDFName.of("Unused"),
+        altered.context.register(
+          altered.context.flateStream("% SYNTHETIC UNUSED RESOURCE", {
+            Type: "XObject",
+            Subtype: "Form",
+            BBox: [0, 0, 1, 1],
+            Resources: {},
+          }),
+        ),
+      );
+      const incoming = await saveCanonical(altered);
+      const second = (await engine.prepare(incoming)).prepared!;
+      const output = await PDFDocument.load(second.pdf);
+      expect(output.catalog.has(PDFName.of("OpenAction"))).toBe(false);
+      expect(output.catalog.has(PDFName.of("Names"))).toBe(false);
+      const decoded = output.context
+        .enumerateIndirectObjects()
+        .filter(([, object]) => object instanceof PDFRawStream)
+        .map(([, object]) =>
+          new TextDecoder("latin1").decode(
+            decodePDFRawStream(object as PDFRawStream).decode(),
+          ),
+        )
+        .join("\n");
+      expect(decoded).not.toContain("SYNTHETIC ATTACHMENT");
+      expect(decoded).not.toContain("SYNTHETIC UNUSED RESOURCE");
+      expect(
+        second.report.barcodes.every((check) => check.status === "verified"),
+      ).toBe(true);
+    } finally {
+      await engine.dispose();
+    }
+  });
   it("rejects Type3 glyph programs that can hide unreadable inline images", async () => {
     const source = await PDFDocument.load(await labelPdf()),
       page = source.getPage(0);
@@ -325,7 +433,7 @@ describe("safety and coordinate regression cases", () => {
       await engine.dispose();
     }
   });
-  it("preserves text, nonzero page origins and UserUnit scaling", async () => {
+  it("preserves visible labels, nonzero page origins and UserUnit scaling", async () => {
     const engine = await createNodeEngine();
     try {
       const source = await PDFDocument.load(await labelPdf());
@@ -339,15 +447,16 @@ describe("safety and coordinate regression cases", () => {
       expect(
         result.prepared?.report.barcodes.every((c) => c.status === "verified"),
       ).toBe(true);
-      expect(result.prepared?.labels[0].renderMode).toBe("vector");
+      expect(result.prepared?.labels[0].renderMode).toBe("raster");
       const runtime = await createNodeRuntime();
       const { PdfBackend } = await import("../src/pdf.js");
       const doc = await new PdfBackend(runtime).open(result.prepared!.pdf);
       try {
         const text = await (await doc.getPage(1)).getTextContent();
-        expect(
-          text.items.map((i) => ("str" in i ? i.str : "")).join(" "),
-        ).toContain("TEST RECIPIENT");
+        expect(text.items).toEqual([]);
+        expect((await doc.getPage(1)).getViewport({ scale: 1 }).width).toBe(
+          288,
+        );
       } finally {
         await doc.loadingTask.destroy();
       }

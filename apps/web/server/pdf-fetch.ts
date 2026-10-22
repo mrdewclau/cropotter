@@ -75,14 +75,16 @@ function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
           "The PDF took too long to arrive. Try again or upload the file.",
         ),
       );
+    // Always observe the operation's rejection, even if cancellation won
+    // before this wrapper was entered.
+    promise
+      .then(resolve, reject)
+      .finally(() => signal.removeEventListener("abort", abort));
     if (signal.aborted) {
       abort();
       return;
     }
     signal.addEventListener("abort", abort, { once: true });
-    promise
-      .then(resolve, reject)
-      .finally(() => signal.removeEventListener("abort", abort));
   });
 }
 
