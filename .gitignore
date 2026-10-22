@@ -16,6 +16,8 @@ tools/engine-harness/public/engine-assets/
 __pycache__/
 brand/.tesseract-work/
 apps/web/public/engine-assets/
+apps/web/public/agents/
+skills/cropotter/.runtime/
 
 brand/share-motion/.tesseract-work/
 

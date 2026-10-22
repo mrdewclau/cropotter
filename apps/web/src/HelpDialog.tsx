@@ -84,6 +84,13 @@ export function HelpDialog({
               and expired links will not work. Download the file from the
               sender, then upload it here.
             </p>
+            <h3>Use with AI agents.</h3>
+            <p>
+              Compatible browser agents can use this page's tools. For local MCP
+              and the executable skill, open the{" "}
+              <a href="/agents/">agent guide and downloads</a>. Conversions run
+              in your browser or agent runtime.
+            </p>
           </>
         )}
       </div>

@@ -28,6 +28,9 @@ const MIME: Record<string, string> = {
   ".ttf": "font/ttf",
   ".pdf": "application/pdf",
   ".txt": "text/plain; charset=utf-8",
+  ".md": "text/markdown; charset=utf-8",
+  ".tgz": "application/gzip",
+  ".zip": "application/zip",
   ".ico": "image/x-icon",
 };
 const CSP =
@@ -237,9 +240,19 @@ export function createApp(options: AppOptions = {}) {
         json(res, 404, { message: "Not found." });
         return;
       }
+      if (pathname === "/agents") {
+        res.writeHead(308, { Location: "/agents/" });
+        res.end();
+        return;
+      }
       const file = resolve(
         root,
-        "." + (pathname === "/" ? "/index.html" : pathname),
+        "." +
+          (pathname === "/"
+            ? "/index.html"
+            : pathname === "/agents/"
+              ? "/agents/index.html"
+              : pathname),
       );
       if (!file.startsWith(root + sep)) {
         json(res, 404, { message: "Not found." });
@@ -316,7 +329,12 @@ export function createApp(options: AppOptions = {}) {
       );
       res.setHeader(
         "Cache-Control",
-        extname(file) === ".html"
+        extname(file) === ".html" ||
+          [
+            "/agents/manifest.json",
+            "/agents/SHA256SUMS",
+            "/agents/guide.md",
+          ].includes(pathname)
           ? "no-cache"
           : pathname.startsWith("/assets/") ||
               pathname.startsWith("/engine-assets/")

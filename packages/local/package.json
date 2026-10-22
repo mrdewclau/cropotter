@@ -1,0 +1,39 @@
+{
+  "name": "cropotter-local",
+  "version": "0.1.0",
+  "description": "Local CropOtter label conversion CLI and stdio MCP server",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "cropotter": "dist/cli.mjs",
+    "cropotter-mcp": "dist/mcp.mjs"
+  },
+  "exports": {
+    ".": "./dist/service.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "verify:packed": "node scripts/verify-packed.mjs"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "1.0.13",
+    "pdfjs-dist": "6.4.299",
+    "pdf-lib": "1.17.1",
+    "zxing-wasm": "3.1.6",
+    "fflate": "0.8.3",
+    "zod": "4.6.7",
+    "@modelcontextprotocol/server": "2.3.1"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.3.1"
+  }
+}

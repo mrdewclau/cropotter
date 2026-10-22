@@ -21,9 +21,10 @@ jobs:
           node-version: 24.22.1
           cache: npm
       - run: npm ci
-      - run: npm run typecheck && npm run typecheck:web
-      - run: npm test && npm run test:web
+      - run: npm run typecheck && npm run typecheck:web && npm run typecheck:local
+      - run: npm test && npm run test:web && npm run test:local && npm run test:agents
       - run: npm run fixtures && npm run build:web
+      - run: npm run verify:local:packed && npm run verify:agents
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:web:browser
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

@@ -39,7 +39,19 @@ Live at **[cropotter.com](https://cropotter.com)** on DigitalOcean. One viewport
 - **Use your screen.** Fluid phone, tablet and desktop layouts, keyboard controls, touch controls, accessible crop sliders, and reduced-motion support.
 - **Keep it simple.** Uploaded files are processed in the browser. Direct links pass through a bounded server fetch. No accounts, database, label history or analytics.
 
-The Three.js label stack is a small decorative enhancement, with static artwork when graphics or motion are unavailable. Fonts, PDF workers and decoding assets are served locally. Exported shipping labels contain no CropOtter branding.
+The contained Three.js demonstration explains full-page PDF → crop → finished label, with Pause/Play and a static fallback. Fonts, PDF workers and decoding assets are served locally. Exported shipping labels contain no CropOtter branding.
+
+## Use with an AI agent
+
+[Download the local MCP package and Agent Skill](https://cropotter.com/agents/) or read the [agent guide](docs/agent-tools.md).
+
+| Route | Execution | Requirements |
+| --- | --- | --- |
+| WebMCP | Existing website's browser engine | A browser/agent supporting top-level WebMCP tools; upload a PDF in the page, then inspect, configure, review and download through its tools. |
+| Local MCP | Caller-controlled Node process over stdio | Node 24+, npm/native canvas support and explicit local file access. Tools analyze/convert PDFs and expose only generated output resources. |
+| Agent Skill | Caller's existing local or sandbox runtime | Complete skill ZIP, Node 24+ and local process/file support; bundles the same engine, not model-generated cropping code. |
+
+No hosted conversion worker, database, artifact storage subscription or model API is required. Existing website/distribution bandwidth and the caller's model/runtime usage still apply. Uncertain crops retain human review; filenames are editable; PDF/PNG/ZIP files remain unbranded. Host-specific attachment presentation and feature availability vary. Browser blob links work only inside the current page.
 
 ## Run locally
 
@@ -83,6 +95,10 @@ npm run typecheck
 npm run typecheck:web
 npm test
 npm run test:web
+npm run test:local
+npm run test:agents
+npm run verify:local:packed
+npm run verify:agents
 npm run fixtures
 npm run build:web
 npx playwright install --with-deps chromium firefox webkit

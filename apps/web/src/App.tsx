@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type {
   Analysis,
   Dpi,
@@ -10,6 +11,14 @@ import { ResultPanel } from "./ResultPanel.js";
 import { CropEditor } from "./CropEditor.js";
 import { HelpDialog } from "./HelpDialog.js";
 import { Icon } from "./Icon.js";
+import { bytesUrl, downloadName, makeArchive } from "./lib/downloads.js";
+import {
+  bindWebMCP,
+  type AgentController,
+  type AgentDownload,
+  type AgentSnapshot,
+  type ModelContextDocument,
+} from "./lib/webmcp.js";
 import {
   convert,
   exportConversion,
@@ -44,11 +53,191 @@ export function App() {
   }>();
   const [error, setError] = useState("");
   const [help, setHelp] = useState<"help" | "privacy">();
+  const [reviewedResult, setReviewedResult] = useState<Conversion>();
+  const reviewAcknowledged = !!result && reviewedResult === result;
+  function setReviewAcknowledged(value: boolean) {
+    setReviewedResult(value ? result : undefined);
+  }
+  const bridgeTransactions = useRef(0);
+  // A browser tool must observe the same committed result as the visible UI.
+  function publish(change: () => void) {
+    if (bridgeTransactions.current) flushSync(change);
+    else change();
+  }
+  const running = useRef(false);
+  const cleared = useRef(true);
+  const sourceVersion = useRef(0);
   const current = useRef<{ id: number; controller: AbortController }>({
     id: 0,
     controller: new AbortController(),
   });
   const tool = useRef<HTMLElement>(null);
+  const downloads = useMemo<AgentDownload[]>(() => {
+    if (!result) return [];
+    const stem = downloadName(outputName);
+    const zip = makeArchive(
+      stem,
+      result.prepared.pdf,
+      result.images.map((image, i) => ({
+        name: `${stem}-${String(i + 1).padStart(3, "0")}-${result.dpi}dpi.png`,
+        data: image.data,
+      })),
+      `${stem}.pdf`,
+    );
+    return [
+      {
+        format: "pdf",
+        filename: `${stem}.pdf`,
+        mimeType: "application/pdf",
+        url: bytesUrl(result.prepared.pdf, "application/pdf"),
+        bytes: result.prepared.pdf.byteLength,
+      },
+      ...result.images.map(
+        (image, i): AgentDownload => ({
+          format: "png",
+          filename: `${stem}${result.images.length > 1 ? `-${i + 1}` : ""}.png`,
+          mimeType: "image/png",
+          url: bytesUrl(image.data, "image/png"),
+          bytes: image.data.byteLength,
+          label: i + 1,
+        }),
+      ),
+      {
+        format: "zip",
+        filename: `${stem}.zip`,
+        mimeType: "application/zip",
+        url: bytesUrl(zip, "application/zip"),
+        bytes: zip.byteLength,
+      },
+    ];
+  }, [result, outputName]);
+  useEffect(
+    () => () => downloads.forEach((d) => URL.revokeObjectURL(d.url)),
+    [downloads],
+  );
+  const view = useRef({
+    source,
+    result,
+    analysis,
+    error,
+    outputName,
+    reviewAcknowledged,
+    downloads,
+  });
+  view.current = {
+    source,
+    result,
+    analysis,
+    error,
+    outputName,
+    reviewAcknowledged,
+    downloads,
+  };
+  function snapshot(): AgentSnapshot {
+    const state = view.current;
+    const reviewRequired =
+      !!state.result &&
+      (state.result.prepared.report.status === "needs_review" ||
+        state.result.images.some((i) => i.report.status === "needs_review"));
+    return {
+      status: running.current
+        ? "processing"
+        : state.error
+          ? "error"
+          : cleared.current || !state.source
+            ? "empty"
+            : state.analysis
+              ? "review_open"
+              : !state.result || reviewRequired
+                ? "needs_review"
+                : "ready",
+      documentId:
+        !cleared.current && state.source ? String(sourceVersion.current) : null,
+      labelCount: state.result?.prepared.labels.length ?? 0,
+      dpi: state.result?.dpi ?? 203,
+      filename: downloadName(state.outputName),
+      reviewRequired,
+      reviewAcknowledged: state.reviewAcknowledged,
+      warnings: state.result?.prepared.report.warnings,
+    };
+  }
+  async function agentOperation(
+    action: () => Promise<void>,
+    signal: AbortSignal,
+  ) {
+    signal.throwIfAborted();
+    bridgeTransactions.current++;
+    const work = action();
+    const ownedJob = current.current.id;
+    const abort = () => {
+      if (current.current.id === ownedJob) cancel();
+    };
+    signal.addEventListener("abort", abort, { once: true });
+    const checkOwnership = () => {
+      signal.throwIfAborted();
+      if (current.current.id !== ownedJob)
+        throw new DOMException(
+          "The operation was cancelled or replaced.",
+          "AbortError",
+        );
+    };
+    try {
+      await work;
+      checkOwnership();
+      if (view.current.error)
+        throw new Error("The page could not complete the operation.");
+    } finally {
+      bridgeTransactions.current--;
+      signal.removeEventListener("abort", abort);
+    }
+  }
+  const agentController = useRef<AgentController>(null!);
+  agentController.current = {
+    snapshot,
+    loadSample: (signal) => agentOperation(sample, signal),
+    configure: async (options, signal) => {
+      if (!view.current.result || view.current.analysis)
+        throw new Error("Finish crop review first.");
+      await agentOperation(async () => {
+        if (options.filename !== undefined)
+          publish(() => setOutputName(downloadName(options.filename!)));
+        if (
+          options.dpi !== undefined &&
+          options.dpi !== view.current.result?.dpi
+        )
+          await changeDpi(options.dpi);
+      }, signal);
+    },
+    openReview: (signal) => agentOperation(edit, signal),
+    downloads: () => view.current.downloads,
+    download: (format, label) => {
+      const file = view.current.downloads.find(
+        (d) => d.format === format && (format !== "png" || d.label === label),
+      );
+      if (!file) throw new Error("That output is unavailable.");
+      const link = document.createElement("a");
+      link.href = file.url;
+      link.download = file.filename;
+      document.body.append(link);
+      link.click();
+      link.remove();
+    },
+  };
+  useEffect(() => {
+    const facade: AgentController = {
+      snapshot: () => agentController.current.snapshot(),
+      loadSample: (s) => agentController.current.loadSample(s),
+      configure: (o, s) => agentController.current.configure(o, s),
+      openReview: (s) => agentController.current.openReview(s),
+      downloads: () => agentController.current.downloads(),
+      download: (f, l) => agentController.current.download(f, l),
+    };
+    const binding = bindWebMCP(
+      facade,
+      document as unknown as ModelContextDocument,
+    );
+    return binding.dispose;
+  }, []);
   useEffect(() => {
     const prevent = (e: DragEvent) => {
       if (e.dataTransfer?.types.includes("Files")) e.preventDefault();
@@ -62,6 +251,7 @@ export function App() {
     };
   }, []);
   function start(message: string) {
+    running.current = true;
     current.current.controller.abort();
     const job = {
       id: current.current.id + 1,
@@ -78,11 +268,15 @@ export function App() {
     );
   }
   function cancel() {
+    running.current = false;
     current.current.controller.abort();
     current.current.id++;
     setBusy(undefined);
   }
   function reset() {
+    cleared.current = true;
+    sourceVersion.current++;
+    setReviewAcknowledged(false);
     cancel();
     setResult(undefined);
     setSource(undefined);
@@ -112,21 +306,28 @@ export function App() {
     });
     if (!active(job.id)) return;
     if ("prepared" in converted) {
-      setResult(converted);
-      setAnalysis(undefined);
+      publish(() => {
+        setResult(converted);
+        setAnalysis(undefined);
+      });
     } else {
       if (converted.pages.every((p) => p.status === "blank"))
         throw new Error(
           "That PDF looks blank. Choose a PDF with a visible shipping label.",
         );
-      setResult(undefined);
-      setAnalysis(converted);
+      publish(() => {
+        setResult(undefined);
+        setAnalysis(converted);
+      });
     }
   }
   async function load(
     loadSource: (signal: AbortSignal) => Promise<Source>,
     message: string,
   ) {
+    cleared.current = true;
+    sourceVersion.current++;
+    setReviewAcknowledged(false);
     const job = start(message);
     setResult(undefined);
     setAnalysis(undefined);
@@ -135,13 +336,17 @@ export function App() {
     try {
       const value = await loadSource(job.controller.signal);
       if (!active(job.id)) return;
+      cleared.current = false;
       setSource(value);
       setOutputName(`${fileStem(value.name)}-4x6`);
       await format(value, job);
     } catch (e) {
-      if (active(job.id)) setError(friendlyError(e));
+      if (active(job.id)) publish(() => setError(friendlyError(e)));
     } finally {
-      if (active(job.id)) setBusy(undefined);
+      if (active(job.id)) {
+        running.current = false;
+        publish(() => setBusy(undefined));
+      }
     }
   }
   function fromFiles(files: FileList | null) {
@@ -182,7 +387,7 @@ export function App() {
     }, "Fetching your PDF");
   }
   function sample() {
-    void load(async (signal) => {
+    return load(async (signal) => {
       const response = await fetch("/sample-label.pdf", { signal });
       if (!response.ok)
         throw Error("The sample could not load. Please try again.");
@@ -204,11 +409,14 @@ export function App() {
           signal: job.controller.signal,
           onProgress: progress(job.id),
         }));
-      if (active(job.id)) setAnalysis(next);
+      if (active(job.id)) publish(() => setAnalysis(next));
     } catch (e) {
-      if (active(job.id)) setError(friendlyError(e));
+      if (active(job.id)) publish(() => setError(friendlyError(e)));
     } finally {
-      if (active(job.id)) setBusy(undefined);
+      if (active(job.id)) {
+        running.current = false;
+        publish(() => setBusy(undefined));
+      }
     }
   }
   async function apply(choices: Selection[]) {
@@ -219,9 +427,12 @@ export function App() {
     try {
       await format(source, job, choices, result?.dpi ?? 203);
     } catch (e) {
-      if (active(job.id)) setError(friendlyError(e));
+      if (active(job.id)) publish(() => setError(friendlyError(e)));
     } finally {
-      if (active(job.id)) setBusy(undefined);
+      if (active(job.id)) {
+        running.current = false;
+        publish(() => setBusy(undefined));
+      }
     }
   }
   async function changeDpi(dpi: Dpi) {
@@ -235,11 +446,14 @@ export function App() {
         { signal: job.controller.signal, onProgress: progress(job.id) },
         result.analysis,
       );
-      if (active(job.id)) setResult(next);
+      if (active(job.id)) publish(() => setResult(next));
     } catch (e) {
-      if (active(job.id)) setError(friendlyError(e));
+      if (active(job.id)) publish(() => setError(friendlyError(e)));
     } finally {
-      if (active(job.id)) setBusy(undefined);
+      if (active(job.id)) {
+        running.current = false;
+        publish(() => setBusy(undefined));
+      }
     }
   }
   return (
@@ -308,6 +522,9 @@ export function App() {
                 onReset={reset}
                 onEdit={() => void edit()}
                 onDpi={(dpi) => void changeDpi(dpi)}
+                downloads={downloads}
+                reviewAcknowledged={reviewAcknowledged}
+                onReviewAcknowledged={setReviewAcknowledged}
               />
             ) : (
               <Intake

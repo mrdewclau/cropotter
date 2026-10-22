@@ -1,0 +1,4 @@
+interface:
+  display_name: "CropOtter"
+  short_description: "Review and format local shipping labels as 4 × 6 files"
+  default_prompt: "Use $cropotter to inspect this shipping-label PDF and create reviewed 4 × 6 PDF, PNG and ZIP downloads."

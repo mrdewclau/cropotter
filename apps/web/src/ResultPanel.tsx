@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dpi } from "../../../packages/engine/src/types.js";
-import { bytesUrl, downloadName, makeArchive } from "./lib/downloads.js";
+import { downloadName } from "./lib/downloads.js";
 import type { Conversion } from "./lib/conversion.js";
+import type { AgentDownload } from "./lib/webmcp.js";
 import { Icon } from "./Icon.js";
 export function ResultPanel({
   value,
@@ -11,6 +12,9 @@ export function ResultPanel({
   onReset,
   onEdit,
   onDpi,
+  downloads,
+  reviewAcknowledged: ack,
+  onReviewAcknowledged: setAck,
 }: {
   value: Conversion;
   outputName: string;
@@ -19,47 +23,23 @@ export function ResultPanel({
   onReset: () => void;
   onEdit: () => void;
   onDpi: (dpi: Dpi) => void;
+  downloads: AgentDownload[];
+  reviewAcknowledged: boolean;
+  onReviewAcknowledged: (value: boolean) => void;
 }) {
   const [index, setIndex] = useState(0);
-  const [ack, setAck] = useState(false);
   const [shareError, setShareError] = useState("");
   const stem = downloadName(outputName);
   const [draftName, setDraftName] = useState(outputName);
-  const zipUrl = useMemo(
-    () =>
-      bytesUrl(
-        makeArchive(
-          stem,
-          value.prepared.pdf,
-          value.images.map((image, i) => ({
-            name: `${stem}-${String(i + 1).padStart(3, "0")}-${value.dpi}dpi.png`,
-            data: image.data,
-          })),
-          `${stem}.pdf`,
-        ),
-        "application/zip",
-      ),
-    [value, stem],
-  );
-  useEffect(() => () => URL.revokeObjectURL(zipUrl), [zipUrl]);
+  useEffect(() => setDraftName(outputName), [outputName]);
+  const zipUrl = downloads.find((d) => d.format === "zip")?.url;
   const heading = useRef<HTMLHeadingElement>(null);
-  const links = useMemo(
-    () => ({
-      pdf: bytesUrl(value.prepared.pdf, "application/pdf"),
-      images: value.images.map((i) => bytesUrl(i.data, "image/png")),
-    }),
-    [value],
-  );
-  useEffect(
-    () => () => {
-      URL.revokeObjectURL(links.pdf);
-      links.images.forEach(URL.revokeObjectURL);
-    },
-    [links],
-  );
+  const links = {
+    pdf: downloads.find((d) => d.format === "pdf")?.url,
+    images: downloads.filter((d) => d.format === "png").map((d) => d.url),
+  };
   useEffect(() => {
     setIndex(0);
-    setAck(false);
     heading.current?.focus({ preventScroll: true });
   }, [value]);
   const selected = Math.min(index, value.images.length - 1);
