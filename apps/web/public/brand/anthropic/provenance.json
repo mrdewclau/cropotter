@@ -1,0 +1,31 @@
+{
+  "source": "https://www.anthropic.com/press-kit",
+  "retrieved": "2026-10-23",
+  "archiveSha256": "c68ac92df86c825f95177e24016fcc9a8863a3fd4ca344fe6f0700b2c1e07151",
+  "assets": [
+    {
+      "file": "claude-logo-slate.svg",
+      "archivePath": "Anthropic media resources/Anthropic logos/Claude logos/1 Claude logo/SVG/Claude logo - Slate.svg",
+      "bytes": 4377,
+      "sha256": "02737f748297f2c6e4863b775809038bda8549c7297e57070ed9e5ceafdf2871"
+    },
+    {
+      "file": "claude-spark-clay.svg",
+      "archivePath": "Anthropic media resources/Anthropic logos/Claude logos/3 Claude Spark/SVG/Claude Spark - Clay.svg",
+      "bytes": 2580,
+      "sha256": "6d53db4be375e899c937c26cf16684a80d6e869b1928d72b37748bef2560e219"
+    },
+    {
+      "file": "claude-icon-rounded.svg",
+      "archivePath": "Anthropic media resources/Anthropic logos/Claude logos/4 Claude icon/SVG/ClaudeIcon-Rounded.svg",
+      "bytes": 3064,
+      "sha256": "059e22f525d67c6258c4f64514f0b0e717c914df8a706936d0299d5e6b8082d9"
+    },
+    {
+      "file": "anthropic-logo-slate.svg",
+      "archivePath": "Anthropic media resources/Anthropic logos/Anthropic logos/1 Anthropic logo/SVG/Anthropic logo - Slate.svg",
+      "bytes": 1978,
+      "sha256": "56cc8de50f5c863520c7ae24464a8b2fd5c2f66f9063b9790aff8c37b4a0a554"
+    }
+  ]
+}

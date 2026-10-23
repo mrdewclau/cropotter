@@ -177,6 +177,10 @@ main {
   border-radius: 4px;
 }
 .workspace-nav [role="tab"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-width: 0;
   padding: 8px 20px;
   min-height: 40px;
@@ -222,6 +226,17 @@ main {
 }
 .hero .eyebrow {
   color: var(--muted);
+}
+.claude-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 32px;
+}
+.claude-identity img {
+  width: 147px;
+  height: 32px;
+  object-fit: contain;
 }
 .intro {
   font-size: clamp(0.875rem, 1.3vw, 1.125rem);
@@ -865,6 +880,9 @@ dialog::backdrop {
   }
 }
 @container (max-height: 25rem) and (max-width: 44rem) {
+  #claude-tab img {
+    display: none;
+  }
   .agent-card .eyebrow,
   .agent-card > p:not(.eyebrow) {
     display: none;

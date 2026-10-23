@@ -13,3 +13,5 @@ The user requires viewport-fitting app shells for all designs. CropOtter is one 
 Production belongs on DigitalOcean and cropotter.com uses GoDaddy DNS. Inspect the actual account/host/records before changes, preserve unrelated services and DNS, and verify health, HTTPS and real live conversion. Do not substitute Sites hosting. Keep secrets, customer PDFs and signed customer URLs out of source and logs. Update `HANDOFF.md` and verification notes when deployment status changes.
 
 The process demonstration must explain full-page PDF → crop → finished label, with readable paper, contrast and synchronized copy. Preserve Pause/Play and static fallback. Do not replace it with a decorative floating stamp. Geometry checks and visual acceptance are separate; review actual live screenshots.
+
+Official third-party brand SVGs under `apps/web/public/brand/anthropic/` must remain byte-for-byte unchanged; preserve provenance hashes and exclude these vendor marks from formatting/optimization and the repository MIT grant. Use them only to identify compatibility, without implying endorsement or directory approval. See the asset README and upstream guidelines.
