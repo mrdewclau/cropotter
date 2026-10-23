@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "cropotter",
+  "display_name": "CropOtter — Shipping Label Formatter",
+  "version": "0.1.2",
+  "description": "Turn local shipping-label PDFs into print-ready 4 × 6 PDF, PNG and ZIP files.",
+  "long_description": "Format shipping labels locally with CropOtter. Preserve portrait 4 × 6 proportions, at least ⅛ inch white margins and barcode content. Analyze first, review uncertain crops, choose a filename and export PDF, PNG or ZIP. Conversion runs on your Mac; results shared with Claude follow Anthropic's data policy. Choose a workspace folder during setup and keep inputs and outputs there. No CropOtter account, API key, subscription, remote conversion service or separate Node installation is required. This bundle requires macOS 13.5+ on Apple Silicon or Intel; it does not provide direct printing or automatic access to chat attachments.",
+  "author": { "name": "CropOtter", "url": "https://github.com/mrdewclau" },
+  "homepage": "https://cropotter.com",
+  "documentation": "https://github.com/mrdewclau/cropotter/tree/main/extensions/claude-desktop",
+  "support": "https://github.com/mrdewclau/cropotter/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrdewclau/cropotter"
+  },
+  "icon": "icon.png",
+  "license": "MIT",
+  "keywords": ["shipping", "labels", "pdf", "4x6", "crop", "local", "privacy"],
+  "compatibility": { "platforms": ["darwin"] },
+  "server": {
+    "type": "binary",
+    "entry_point": "server/launch.sh",
+    "mcp_config": {
+      "command": "/bin/sh",
+      "args": ["${__dirname}/server/launch.sh", "${user_config.workspace}"]
+    }
+  },
+  "tools": [
+    {
+      "name": "cropotter_analyze",
+      "description": "Analyze a local PDF inside the chosen workspace without returning document text or barcode values."
+    },
+    {
+      "name": "cropotter_convert",
+      "description": "Create reviewed 4 × 6 PDF/PNG/ZIP files inside the chosen workspace without overwriting existing files."
+    }
+  ],
+  "user_config": {
+    "workspace": {
+      "type": "directory",
+      "title": "Label workspace",
+      "description": "Choose a private folder for label PDFs and converted files. CropOtter accepts input and output paths only inside this folder. Save chat attachments here before requesting conversion.",
+      "required": true
+    }
+  }
+}

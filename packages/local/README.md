@@ -3,7 +3,7 @@
 Local 4 × 6 inch shipping-label processing using the same engine as cropotter.com. Node.js 24+ and a supported `@napi-rs/canvas` native platform are required. Install dependencies from public npm; no API key, owner account, remote converter or recurring subscription is used. Processing stays local. Installation needs internet access for npm dependencies.
 
 ```sh
-npm install --prefix ./cropotter-runtime ./cropotter-local-0.1.0.tgz
+npm install --prefix ./cropotter-runtime ./cropotter-local-0.1.2.tgz
 ./cropotter-runtime/node_modules/.bin/cropotter analyze --input /absolute/source.pdf
 ./cropotter-runtime/node_modules/.bin/cropotter convert --input /absolute/source.pdf --out /absolute/new-output --formats pdf,png,zip --name 'My labels' --dpi 203
 ```
@@ -27,6 +27,8 @@ Only local regular-file inputs are accepted; no URLs, HTTP listener, machine sca
 
 ## MCP
 
+On filesystems with hard links, completed files publish atomically. ExFAT and other filesystems reporting unsupported hard links use exclusive destination creation instead: existing files are still never overwritten, but files can be visible while writing. Handled errors/cancellation remove the current job's partial output; abrupt process or machine termination can leave partial destinations. Inspect files before retrying and use a new output directory.
+
 Launch the installed `cropotter-mcp` binary with stdio transport. For a host that accepts an MCP JSON configuration:
 
 ```json
@@ -41,6 +43,8 @@ Launch the installed `cropotter-mcp` binary with stdio transport. For a host tha
 ```
 
 Host configuration paths differ. The server uses official `@modelcontextprotocol/server` 2.3.1 `serveStdio`, serving modern 2026-07-28 and legacy 2025-11-25 clients. Tests use the matching official client package over actual subprocess stdio.
+
+Add `--workspace /absolute/private/folder` to restrict both input and output paths to that existing folder. The desktop extension requires this option through its folder picker. Symlink roots and sibling-prefix escapes are rejected. This handler-level boundary does not create an operating-system sandbox.
 
 | Tool | Arguments |
 | --- | --- |

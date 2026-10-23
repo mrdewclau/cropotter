@@ -33,6 +33,18 @@ it.each(["legacy", "auto"] as const)(
         "cropotter_analyze",
         "cropotter_convert",
       ]);
+      expect(tools[0].annotations).toMatchObject({
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      });
+      expect(tools[1].annotations).toMatchObject({
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: false,
+      });
+      expect(tools.every((t) => Boolean(t.title))).toBe(true);
       const analysis = await client.callTool({
         name: "cropotter_analyze",
         arguments: {

@@ -12,11 +12,11 @@ Download the current versioned package and skill ZIP from [the agent downloads](
 
 ## Install the local package
 
-Download `cropotter-local-0.1.0.tgz`. In a new local tools directory, run:
+Download the local tarball named in the public manifest. Replace `VERSION` below with that artifact's version (source-branch versions may be newer than the deployed download). In a new local tools directory, run:
 
 ```sh
 node --version
-npm install --omit=dev --ignore-scripts --no-audit --no-fund /absolute/path/cropotter-local-0.1.0.tgz
+npm install --omit=dev --ignore-scripts --no-audit --no-fund /absolute/path/cropotter-local-VERSION.tgz
 node ./node_modules/cropotter-local/dist/cli.mjs analyze --input /absolute/path/label.pdf
 node ./node_modules/cropotter-local/dist/cli.mjs convert --input /absolute/path/label.pdf --out /absolute/path/new-output --formats pdf,png,zip --name shipment-4x6 --dpi 203
 ```
@@ -74,9 +74,13 @@ node /absolute/path/cropotter/scripts/run.mjs convert --input /absolute/path/lab
 
 The runner verifies the bundled tarball checksum and installs into the skill's disposable `.runtime/` directory. Node is validated rather than downloaded silently. No globally installed package or owner account is needed. Installation failures are actionable errors; the skill never substitutes a remote upload. The first install needs public npm access; subsequent conversion uses installed local dependencies.
 
-The bundle has been tested through a clean installation and real synthetic PDF/PNG/ZIP conversion in a local macOS environment. That does not establish support inside every hosted agent sandbox, client or OS. Actual Codex, Claude and Gemini attachment presentation remains host-specific.
+The bundle has been tested through clean local installations and real synthetic PDF/PNG/ZIP conversion on macOS and Linux CI. Actual Claude web acceptance also passed after explicitly preparing official Node 24 in its Node 22 sandbox: real downloadable files and the manual-review gate were checked. This does not make the current skill setup-free in Claude web or establish support inside every hosted sandbox. See `docs/claude-distribution-2026-10-22.md` in the source repository. Other client attachment presentation remains host-specific.
 
 Ask the agent to attach the actual generated PDF/PNG/ZIP with your host's attachment tools. Filesystem paths are not public HTTPS links. Some hosts can show local file links, some expose downloadable attachments, and others cannot present generated files at all. The skill must report the actual capability rather than promise universal download buttons.
+
+## Claude Desktop extension
+
+The source repository also prepares a self-contained `.mcpb` for macOS 13.5+, with Apple Silicon and Intel Node runtimes and dependencies bundled. It uses a folder picker rather than manual Node/npm configuration; conversion runs locally and the server is restricted to the selected workspace. This is separate from the skill ZIP and does not work in Claude web or mobile. Read [the desktop extension guide](https://github.com/mrdewclau/cropotter/tree/main/extensions/claude-desktop) and its acceptance record for current release/submission status. A prepared package does not mean directory approval.
 
 ## Browser tools
 
