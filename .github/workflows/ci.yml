@@ -22,7 +22,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck && npm run typecheck:web && npm run typecheck:local
-      - run: npm test && npm run test:web && npm run test:local && npm run test:agents && npm run test:claude-extension
+      - run: npm test && npm run test:web && npm run test:local && npm run test:agents && npm run test:claude-extension && npm run test:chatgpt-plugin
       - run: npm run fixtures && npm run build:web
       - run: npm run verify:local:packed && npm run verify:agents
       - run: npx playwright install --with-deps chromium firefox webkit

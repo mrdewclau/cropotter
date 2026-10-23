@@ -48,6 +48,7 @@ The contained Three.js demonstration explains full-page PDF → crop → finishe
 | Route | Execution | Requirements |
 | --- | --- | --- |
 | Claude Desktop extension | Local bundled runtime | macOS 13.5+, Apple Silicon or Intel; open the unsigned `.mcpb`, select a private workspace and save PDFs there. No separate Node installation. Outputs are local files; this tested host does not attach download cards. |
+| Native OpenAI plugin | Caller's supported desktop Work/Codex environment | Skills-only package; Node 24+, npm and local execution. Actual desktop discovery, bundled-sample conversion and local file links verified. Regular ChatGPT web/mobile remain untested. See [setup and acceptance](docs/openai-plugin/README.md). |
 | WebMCP | Existing website's browser engine | A browser/agent supporting top-level WebMCP tools; upload a PDF in the page, then inspect, configure, review and download through its tools. |
 | Local MCP | Caller-controlled Node process over stdio | Node 24+, npm/native canvas support and explicit local file access. Tools analyze/convert PDFs and expose only generated output resources. |
 | Agent Skill | Caller's existing local or sandbox runtime | Complete skill ZIP, Node 24+ and local process/file support; bundles the same engine, not model-generated cropping code. |
