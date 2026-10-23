@@ -2,6 +2,8 @@
 
 The native OpenAI plugin packages CropOtter's existing engine as an executable skill. A fresh local desktop Work/Codex conversation discovered it and produced actual PDF, PNG and ZIP files. Regular ChatGPT web/mobile and every plan/runtime have not been tested. Read the [acceptance record](desktop-verification-2026-10-23.md) and [data handling](privacy.md) for the exact limits.
 
+[Download the 0.1.0 desktop preview](https://github.com/mrdewclau/cropotter/releases/download/chatgpt-plugin-v0.1.0/cropotter-chatgpt-0.1.0.zip) and [SHA-256 checksums](https://github.com/mrdewclau/cropotter/releases/download/chatgpt-plugin-v0.1.0/SHA256SUMS). This portable plugin ZIP uses the host's plugin installation workflow; it is not a double-click desktop extension installer or a directory listing. The [release notes](https://github.com/mrdewclau/cropotter/releases/tag/chatgpt-plugin-v0.1.0) document requirements.
+
 No CropOtter account, model API key, remote conversion endpoint or new monthly service is required. The caller's existing ChatGPT access, execution permissions and usage limits still apply. Node 24+, npm, native canvas support and first-use access to public npm dependencies are required. Where the host already bundles a suitable runtime, the skill uses its dependency-discovery capability and task-scoped PATH; it never silently downloads Node or changes the system installation.
 
 ## Use the installed plugin

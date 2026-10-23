@@ -25,6 +25,8 @@ The user-created conversation **Create Desktop test sample files** requested:
 
 The fresh conversation discovered the installed CropOtter skill, read its installed instructions, analyzed the bundled synthetic PDF and converted it with the packaged engine. It recovered from the incompatible default Node by using the host's documented dependency-discovery tool. Analysis found one high-confidence embedded-image candidate with no warnings, so human-review acknowledgement correctly remained false. The final answer linked the three actual local files.
 
+The user subsequently confirmed: **“Test succeeded; files appeared.”**
+
 Independent verification read those conversation-generated files, rather than substituting the earlier command-line test outputs. All manifest byte lengths and SHA-256 values matched. The PDF contains one 288 × 432 pt page; the PNG is 1200 × 1800 pixels. The ZIP has exactly the PDF and PNG, byte-identical to their standalone counterparts. The PNG was visually inspected: synthetic recipient data, full barcode, portrait proportions and white margins remain intact; no CropOtter branding appears on the label.
 
 | File | Bytes | SHA-256 |
@@ -42,3 +44,9 @@ The archive integration regression was observed failing before the builder exist
 A separate installed-copy test also passed using a writable task copy, leaving the installed resources unchanged. The actual conversation used the writable installed skill directly, which is supported by the canonical runner. No website layout, production deployment, DNS, shared server or Claude installer changed in this work.
 
 An uploaded customer PDF, actual cloud ChatGPT execution, broad prompt/negative-case evaluations, public directory submission and mobile remain unverified. The user did not request public OpenAI directory submission or authorize new directory agreements. The prepared portable ZIP and public source do not constitute directory approval.
+
+## Public preview and Linux verification
+
+[PR #3](https://github.com/mrdewclau/cropotter/pull/3) merged as `f91a4e7`. Its code/content tree matches the tested head `b7da539` exactly. [Linux CI 39911023965, attempt 2](https://github.com/mrdewclau/cropotter/actions/runs/39911023965/attempts/2) passed every gate, including the real plugin extraction/conversion regression, package installations, production website build and **108 browser checks / 12 expected skips**. The first attempt was canceled during unusually slow Ubuntu mirror downloads; the fresh runner passed without a code change. The browser run took 8.8 minutes.
+
+[Desktop preview 0.1.0](https://github.com/mrdewclau/cropotter/releases/tag/chatgpt-plugin-v0.1.0) is public with the exact tested ZIP and checksums. All 13 packaged entries match the installed plugin byte-for-byte. An anonymous HTTPS download matched the original 107,165-byte archive and SHA-256; the public privacy-policy URL returned success. This publishes source/distribution only. CropOtter's production website, DigitalOcean host and Claude installer were not redeployed.
