@@ -1,6 +1,6 @@
 # Claude distribution acceptance — 2026-10-22
 
-User requested actual Claude web skill acceptance, then a one-click desktop extension ready for submission, with no new monthly costs. Source work is on `codex/claude-distribution`; directory submission and terms acceptance are not performed by this work.
+User requested actual Claude web skill acceptance, then a one-click desktop extension ready for submission, with no new monthly costs. Source was published through [PR #1](https://github.com/mrdewclau/cropotter/pull/1) and the [0.1.2 desktop release](https://github.com/mrdewclau/cropotter/releases/tag/claude-desktop-v0.1.2); directory submission and terms acceptance are not performed by this work.
 
 ## Claude web: actual hosted acceptance
 
@@ -43,7 +43,7 @@ Claude returned local file paths and `cropotter://` artifact resource URIs. In t
 | macOS archive | Final 0.1.2 archive passed both native Apple Silicon and Intel via Rosetta: extracted CLI/MCP/resource conversion, actual transmitted MCP cancellation, no cancellation output and subsequent-request recovery, with OS network denied and no Node/npm on PATH. Physical Intel hardware was not tested. |
 | Actual Desktop | Install/update/configure/enable/discover/analyze/convert passed with 0.1.2, including real ExFAT outputs and actual outside-workspace rejection. The original failure and the host download-card limitation are preserved above. |
 | Review | Independent review found no remaining P1/P2 issues after minimum macOS requirement and cancellation acceptance fixes. |
-| Source/CI | Source prepared for public pull request; final GitHub CI status is recorded with the release handoff. |
+| Source/CI | [PR #1](https://github.com/mrdewclau/cropotter/pull/1) merged. [Implementation CI](https://github.com/mrdewclau/cropotter/actions/runs/39874346684) passed, including 98 browser checks / 12 expected skips. Merged and tested content trees are identical (`1dd037cc7ff28246adce885728b650a31c74e745`). |
 
 Final artifact: `cropotter-0.1.2-macos-universal.mcpb`, **122,334,239 bytes**, SHA-256 `fcda3cd27798d0637358d420d21f0f99561518039846d05195be1338738cc3b1`. Official MCPB manifest and icon validation passed. Artifact identity is independently verified and the bundle remains unsigned.
 

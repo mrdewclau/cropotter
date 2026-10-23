@@ -4,9 +4,9 @@ This packet prepares the local macOS desktop extension for Anthropic's directory
 
 | Item | Prepared value / location |
 | --- | --- |
-| Package | `output/claude-release/cropotter-0.1.2-macos-universal.mcpb` after `npm run build:claude-extension` |
+| Package | [Verified macOS installer](https://github.com/mrdewclau/cropotter/releases/download/claude-desktop-v0.1.2/cropotter-0.1.2-macos-universal.mcpb); local output `output/claude-release/cropotter-0.1.2-macos-universal.mcpb` |
 | Artifact identity | `output/claude-release/extension-artifact.json` and `SHA256SUMS`; attach the exact verified bundle, not a renamed skill ZIP |
-| Public source | https://github.com/mrdewclau/cropotter; extension source under `extensions/claude-desktop/` |
+| Public source | https://github.com/mrdewclau/cropotter; PR #1 merged, implementation CI passed; extension source under `extensions/claude-desktop/` |
 | Publisher / license | CropOtter; author profile https://github.com/mrdewclau; MIT |
 | Short description | `listing.md` (under the form's 50-word limit) |
 | Data handling | `privacy.md`; local conversion with tool results/resources delivered to Claude |

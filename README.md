@@ -43,10 +43,11 @@ The contained Three.js demonstration explains full-page PDF → crop → finishe
 
 ## Use with an AI agent
 
-[Download the local MCP package and Agent Skill](https://cropotter.com/agents/) or read the [agent guide](docs/agent-tools.md).
+[Install the Claude Desktop extension for macOS](https://github.com/mrdewclau/cropotter/releases/download/claude-desktop-v0.1.2/cropotter-0.1.2-macos-universal.mcpb), [download the local MCP package and Agent Skill](https://cropotter.com/agents/), or read the [agent guide](docs/agent-tools.md). The [desktop release and submission packet](https://github.com/mrdewclau/cropotter/releases/tag/claude-desktop-v0.1.2) include checksums and tested limitations.
 
 | Route | Execution | Requirements |
 | --- | --- | --- |
+| Claude Desktop extension | Local bundled runtime | macOS 13.5+, Apple Silicon or Intel; open the unsigned `.mcpb`, select a private workspace and save PDFs there. No separate Node installation. Outputs are local files; this tested host does not attach download cards. |
 | WebMCP | Existing website's browser engine | A browser/agent supporting top-level WebMCP tools; upload a PDF in the page, then inspect, configure, review and download through its tools. |
 | Local MCP | Caller-controlled Node process over stdio | Node 24+, npm/native canvas support and explicit local file access. Tools analyze/convert PDFs and expose only generated output resources. |
 | Agent Skill | Caller's existing local or sandbox runtime | Complete skill ZIP, Node 24+ and local process/file support; bundles the same engine, not model-generated cropping code. |
