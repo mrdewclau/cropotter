@@ -1,6 +1,6 @@
 # OpenAI directory preparation — 2026-10-23
 
-CropOtter 0.1.1 is a prepared skills-only submission candidate. The website continues offering the independently tested 0.1.0 preview. Preparation and private installation do not mean OpenAI has reviewed or approved CropOtter. No directory submission or legal attestation has been made.
+CropOtter 0.1.1 is a prepared skills-only submission candidate. The website continues offering the independently tested 0.1.0 preview. Preparation and private installation do not mean OpenAI has reviewed or approved CropOtter. No directory submission or legal attestation has been made. Download the [published candidate ZIP and checksum](https://github.com/mrdewclau/cropotter/releases/tag/chatgpt-plugin-v0.1.1).
 
 ## Owner-confirmed listing facts
 
@@ -39,10 +39,14 @@ Run `npm run build:chatgpt-plugin`, `npm run test:chatgpt-plugin` and `npm run v
 
 ## Reviewer materials and remaining portal steps
 
-Five review prompts are included: bundled sample at 300 DPI; attached PDF at 203 DPI; analyze/review before conversion; unsupported Bluetooth direct printing; and a broad whole-computer scan request. The first two conversion paths have real host evidence. Negative prompts and the complete public-review evaluation have not been run inside the directory. Engine tests cover withholding uncertain output and deliberate review acknowledgement.
+Five review prompts are included: bundled sample at 300 DPI; attached PDF at 203 DPI; analyze/review before conversion; unsupported Bluetooth direct printing; and a broad whole-computer scan request. The first two conversion paths have real host evidence, including a verified direct original-PDF alias after a ChatGPT PDF preview download returned a different host rendition. Negative prompts and the complete public-review evaluation have not been run inside the directory. Engine tests cover withholding uncertain output and deliberate review acknowledgement.
 
 This skills-only package has no MCP server, tool test cases, account credentials or reviewer connection to configure. The current official submission workflow does not require an MCP demo recording for this package type. Private plugin access is not required for reviewers to use the portable archive and bundled synthetic example.
 
 Open the [OpenAI submission portal](https://platform.openai.com/plugins) with an eligible organization/project and owner or Apps Management Write access. The owner must complete individual identity verification where requested, upload the final ZIP, let required scans complete, review the actual listing, and personally complete any accuracy, policy or legal attestations. Submit for review only when authorized; publication is a separate step after approval. No API billing or paid infrastructure is required by this conversion design.
 
-Sources checked for this preparation: [OpenAI plugin submission](https://developers.openai.com/plugins/deploy/submission), [plugin guidelines](https://developers.openai.com/plugins/plugin-guidelines) and [ChatGPT plugin usage](https://learn.chatgpt.com/docs/plugins). The portal was inspected read-only and redirected to a separate OpenAI Platform sign-in screen; signing into ChatGPT did not sign into this portal. No draft was uploaded. Publisher verification, account eligibility, scans and attestations therefore remain unverified. Portal availability and account eligibility can change.
+Sources checked for this preparation: [OpenAI plugin submission](https://developers.openai.com/plugins/deploy/submission), [plugin guidelines](https://developers.openai.com/plugins/plugin-guidelines) and [ChatGPT plugin usage](https://learn.chatgpt.com/docs/plugins). The portal was inspected read-only and redirected to a separate OpenAI Platform sign-in screen; signing into ChatGPT did not sign into this portal. Continuing the normal sign-in reached a Cloudflare human-verification checkbox, which was left for the owner. No draft was uploaded. Publisher verification, account eligibility, scans and attestations therefore remain unverified. Portal availability and account eligibility can change.
+
+## Published preparation checkpoint
+
+All four final public listing URLs were checked by response and actual content after source publication and site deployment. The live download and complete six-artifact manifest matched their declared hashes. GitHub confirms the published 0.1.1 prerelease asset is 117,228 bytes with the candidate hash above; the tested 0.1.0 asset was preserved. Full Linux CI passed 128 browser tests with 12 expected skips; focused live Chromium/iPhone acceptance passed 16/16. These checks complete source/package preparation, not OpenAI account eligibility or review.

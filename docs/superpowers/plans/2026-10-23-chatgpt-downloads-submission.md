@@ -32,6 +32,6 @@
 ## Task 3: Release and deployment
 
 - [x] Independently review affected source/package and run required checks on the final commit.
-- [ ] Publish source and appropriate immutable release assets, preserving exact artifact identities and truthful status.
-- [ ] Inspect existing production configuration, deploy only CropOtter on the existing host and verify health/HTTPS/download hash, shell geometry/screenshots and real conversion.
-- [ ] Update HANDOFF.md and deployment/submission records; present what is live, what is prepared and any exact remaining user action.
+- [x] Publish source and appropriate immutable release assets, preserving exact artifact identities and truthful status.
+- [x] Inspect existing production configuration, deploy only CropOtter on the existing host and verify health/HTTPS/download hash, shell geometry/screenshots and real conversion.
+- [x] Update HANDOFF.md and deployment/submission records; present what is live, what is prepared and any exact remaining user action.
