@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="Install CropOtter in Claude Desktop. Local shipping-label formatting, with no CropOtter account or separate runtime setup."
+      content="Use CropOtter in Claude Desktop or a supported ChatGPT environment. Download label-formatting tools, setup guides and verified release checksums."
     />
-    <title>CropOtter for Claude — Your labels. Ready to go.</title>
+    <title>CropOtter for your AI — Your labels. Ready to go.</title>
     <link rel="icon" href="/brand/CropOtter-CO-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./__STYLE__" />
     <script type="module" src="./__SCRIPT__"></script>
@@ -37,28 +37,39 @@
                 role="tab"
                 aria-selected="true"
                 aria-controls="claude-desktop"
+                aria-label="Claude Desktop"
               >
                 <img
                   src="/brand/anthropic/claude-icon-rounded.svg"
                   width="22"
                   height="22"
                   alt=""
-                /><span>Claude Desktop</span>
+                /><span>Claude<span class="tab-detail"> Desktop</span></span>
+              </button>
+              <button
+                id="chatgpt-tab"
+                role="tab"
+                aria-selected="false"
+                aria-controls="chatgpt"
+                tabindex="-1"
+              >
+                ChatGPT
               </button>
               <button
                 id="other-tab"
                 role="tab"
                 aria-selected="false"
                 aria-controls="other-agents"
+                aria-label="Other agents"
                 tabindex="-1"
               >
-                Other agents
+                <span>Other<span class="tab-detail"> agents</span></span>
               </button>
             </div>
             <span class="workspace-label">THE MAILROOM, CONNECTED</span>
           </nav>
           <section
-            class="claude-panel"
+            class="client-panel claude-panel"
             id="claude-desktop"
             role="tabpanel"
             aria-labelledby="claude-tab"
@@ -143,6 +154,87 @@
             </div>
           </section>
           <section
+            class="client-panel chatgpt-panel"
+            id="chatgpt"
+            role="tabpanel"
+            aria-labelledby="chatgpt-tab"
+            hidden
+          >
+            <div class="hero">
+              <p class="eyebrow client-identity">
+                <span>FOR</span><span class="chatgpt-name">ChatGPT</span>
+              </p>
+              <h1>YOUR LABELS.<br /><span>IN CHATGPT.</span></h1>
+              <p class="intro">
+                The CropOtter engine. Your chat.<br />4 × 6 PDF, PNG and ZIP.
+              </p>
+              <div class="primary-actions">
+                <a
+                  class="button primary"
+                  href="https://github.com/mrdewclau/cropotter/releases/download/chatgpt-plugin-v0.1.0/cropotter-chatgpt-0.1.0.zip"
+                  ><svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path d="M12 3v12m-5-5 5 5 5-5M4 15v6h16v-6" /></svg
+                  >Download plugin ZIP</a
+                >
+                <button
+                  class="text-button"
+                  data-dialog="chatgpt-install-dialog"
+                >
+                  How to install
+                </button>
+              </div>
+              <p class="requirements">
+                ChatGPT preview<span class="hardware"> · Node 24+</span>
+                <br /><span class="runtime"
+                  >v0.1.0 · 105 KB · Runtime required</span
+                >
+              </p>
+            </div>
+            <div class="setup-guide" aria-label="Three steps to use the plugin">
+              <p class="eyebrow">FROM DOWNLOAD TO DONE</p>
+              <ol class="setup-steps">
+                <li>
+                  <span class="step-number">01</span>
+                  <div>
+                    <h2>Add the plugin.</h2>
+                    <p>In Plugins, choose +, then Upload plugin archive.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="step-number">02</span>
+                  <div>
+                    <h2>Start a chat.</h2>
+                    <p>
+                      Enable CropOtter in Chat or Work with Node 24+, npm and
+                      file access.
+                    </p>
+                  </div>
+                </li>
+                <li>
+                  <span class="step-number">03</span>
+                  <div>
+                    <h2>Ask for the fit.</h2>
+                    <p>
+                      Provide your PDF and choose a name, format and resolution.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+              <div class="file-output" aria-hidden="true">
+                <span>PDF</span><span>PNG</span><span>ZIP</span>
+                <span>4 × 6. READY TO GO.</span>
+              </div>
+            </div>
+          </section>
+          <section
             id="other-agents"
             class="other-panel"
             role="tabpanel"
@@ -174,20 +266,36 @@
             </article>
           </section>
           <div class="workspace-status">
-            <p role="note" aria-label="Directory status" data-claude-note>
+            <p
+              role="note"
+              aria-label="Directory status"
+              data-agent-view="claude-desktop"
+            >
               <span class="status-dot" aria-hidden="true"></span
               ><strong>Directory review pending.</strong>
               <span class="status-detail"
                 >Unsigned installer; expect Claude’s security warning.</span
               >
             </p>
-            <p data-other-note hidden>
+            <p
+              role="note"
+              aria-label="Directory status"
+              data-agent-view="chatgpt"
+              hidden
+            >
+              <span class="status-dot" aria-hidden="true"></span>
+              <strong>Not submitted to OpenAI.</strong>
+              <span class="status-detail"
+                >Web and desktop tested. Mobile unverified.</span
+              >
+            </p>
+            <p data-agent-view="other-agents" hidden>
               Local tools · No CropOtter account or API key
             </p>
             <button
               class="text-button"
               data-dialog="advanced-dialog"
-              data-other-note
+              data-agent-view="other-agents"
               hidden
             >
               Advanced setup
@@ -196,15 +304,52 @@
         </div>
       </main>
       <footer class="site-footer">
-        <span>ON YOUR DEVICE. NO ACCOUNT NEEDED.</span>
+        <span>YOUR LABELS. YOUR AGENT’S RUNTIME.</span>
         <div>
-          <button class="text-button" data-dialog="privacy-dialog">
+          <button
+            class="text-button"
+            data-dialog="privacy-dialog"
+            data-agent-view="claude-desktop"
+          >
             Data handling</button
           ><a
+            data-agent-view="claude-desktop"
             href="https://github.com/mrdewclau/cropotter/releases/tag/claude-desktop-v0.1.2"
             target="_blank"
             rel="noopener noreferrer"
             >Source &amp; checksums <span aria-hidden="true">↗</span></a
+          >
+          <button
+            class="text-button"
+            data-dialog="chatgpt-privacy-dialog"
+            data-agent-view="chatgpt"
+            hidden
+          >
+            Data handling
+          </button>
+          <a
+            data-agent-view="chatgpt"
+            hidden
+            href="https://github.com/mrdewclau/cropotter/releases/tag/chatgpt-plugin-v0.1.0"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Source &amp; checksums <span aria-hidden="true">↗</span></a
+          >
+          <button
+            class="text-button"
+            data-dialog="agent-privacy-dialog"
+            data-agent-view="other-agents"
+            hidden
+          >
+            Data handling
+          </button>
+          <a
+            data-agent-view="other-agents"
+            hidden
+            href="./manifest.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Artifact checksums <span aria-hidden="true">↗</span></a
           >
         </div>
       </footer>
@@ -244,6 +389,154 @@
           Finished files are saved in your workspace. This extension is for
           Claude Desktop on macOS 13.5+ (Apple Silicon and Intel), not Claude
           web or mobile. Version 0.1.2 is 117 MB with its runtime included.
+        </p>
+      </div>
+    </dialog>
+    <dialog id="chatgpt-install-dialog" aria-labelledby="chatgpt-install-title">
+      <header class="dialog-header">
+        <h2 id="chatgpt-install-title">Install CropOtter in ChatGPT</h2>
+        <button
+          class="icon-button"
+          data-close
+          aria-label="Close ChatGPT installation guide"
+        >
+          ×
+        </button>
+      </header>
+      <div class="dialog-content">
+        <p class="notice">
+          ChatGPT preview. This ZIP is a plugin package, not a double-click
+          installer. OpenAI directory submission is being prepared; it is not
+          listed or approved.
+        </p>
+        <ol class="dialog-steps">
+          <li>
+            <strong>Add the complete package.</strong> Open ChatGPT’s Plugins
+            directory. Choose <strong>+</strong>, then
+            <strong>Upload plugin archive</strong>. Select the downloaded ZIP
+            and choose <strong>Add plugin</strong>. If your host uses a local
+            marketplace instead, extract the complete ZIP there. Keep
+            <code>plugin.json</code>, <code>skills/</code>, scripts and assets
+            together.
+          </li>
+          <li>
+            <strong>Enable CropOtter in a fresh chat.</strong> Use Chat or Work
+            when the host provides Node 24+, npm, process/file access and
+            supported native canvas dependencies. First use needs permitted
+            access to public npm dependencies; your host may request approval.
+            The skill can discover a suitable runtime already bundled by its
+            host.
+          </li>
+          <li>
+            <strong>Provide a PDF and ask for your files.</strong> Choose PDF,
+            PNG or ZIP, a name and 203 or 300 DPI. Review uncertain crops when
+            prompted. The tested web chat returned downloadable files; desktop
+            Work returned actual local file links.
+          </li>
+        </ol>
+        <p>
+          For an existing local marketplace named <code>personal</code> with an
+          entry pointing to the extracted plugin, install with
+          <code>codex plugin add cropotter@personal --json</code>. The
+          <a
+            href="https://github.com/mrdewclau/cropotter/blob/main/docs/openai-plugin/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            >complete setup guide</a
+          >
+          and
+          <a
+            href="https://developers.openai.com/plugins/deploy/connect-chatgpt"
+            target="_blank"
+            rel="noopener noreferrer"
+            >OpenAI’s local plugin instructions</a
+          >
+          explain the supported setup.
+        </p>
+        <p>
+          Sample conversion and actual files are verified in ChatGPT web Chat
+          and desktop Work/Codex. Mobile remains unverified. Runtime, npm
+          access, plugin availability and permissions vary by plan, account and
+          host; these tests do not establish support for every environment.
+        </p>
+        <p>
+          CropOtter is free, with no payments or purchases. No CropOtter
+          account, API key or conversion subscription is needed. Your ChatGPT
+          plan, usage limits and runtime access still apply.
+        </p>
+        <p>
+          Created and maintained by <strong>James Boyd</strong>. CropOtter is
+          independent and is not endorsed by OpenAI.
+        </p>
+      </div>
+    </dialog>
+    <dialog id="chatgpt-privacy-dialog" aria-labelledby="chatgpt-privacy-title">
+      <header class="dialog-header">
+        <h2 id="chatgpt-privacy-title">ChatGPT data handling</h2>
+        <button
+          class="icon-button"
+          data-close
+          aria-label="Close ChatGPT data handling"
+        >
+          ×
+        </button>
+      </header>
+      <div class="dialog-content">
+        <p>
+          CropOtter runs its packaged engine in the execution environment
+          available to your ChatGPT task. Local work uses local files; a cloud
+          task processes files in that cloud environment.
+        </p>
+        <p>
+          CropOtter has no account, analytics, remote conversion endpoint or
+          document database. It reads the PDF you provide and creates your
+          requested files and a manifest. First use downloads public npm
+          dependencies without uploading your PDF to npm.
+        </p>
+        <p>
+          Your uploaded files, task history, outputs and retention follow
+          OpenAI’s policies and your account settings. This is not a promise
+          that attachments stay on your computer.
+        </p>
+        <p>
+          <a
+            href="https://github.com/mrdewclau/cropotter/blob/main/docs/openai-plugin/privacy.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read the full data-handling statement ↗</a
+          >
+        </p>
+      </div>
+    </dialog>
+    <dialog id="agent-privacy-dialog" aria-labelledby="agent-privacy-title">
+      <header class="dialog-header">
+        <h2 id="agent-privacy-title">Your agent. Your runtime.</h2>
+        <button
+          class="icon-button"
+          data-close
+          aria-label="Close agent data handling"
+        >
+          ×
+        </button>
+      </header>
+      <div class="dialog-content">
+        <p>
+          Browser tools use the open CropOtter page. Local MCP and the
+          executable skill run in your chosen permitted runtime. CropOtter has
+          no account, analytics or remote conversion worker.
+        </p>
+        <p>
+          The host controls file access, conversation storage and output
+          presentation. Files and results you share with an AI agent remain
+          subject to that provider’s policies and your account settings.
+        </p>
+        <p>
+          <a
+            href="https://github.com/mrdewclau/cropotter/blob/main/docs/agent-tools.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read the agent guide ↗</a
+          >
         </p>
       </div>
     </dialog>
