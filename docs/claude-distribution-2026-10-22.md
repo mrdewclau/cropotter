@@ -2,6 +2,8 @@
 
 User requested actual Claude web skill acceptance, then a one-click desktop extension ready for submission, with no new monthly costs. Source was published through [PR #1](https://github.com/mrdewclau/cropotter/pull/1) and the [0.1.2 desktop release](https://github.com/mrdewclau/cropotter/releases/tag/claude-desktop-v0.1.2); directory submission and terms acceptance are not performed by this work.
 
+Current directory state: [submitted on 2026-10-22; awaiting review](claude-directory-status-2026-10-22.md). The acceptance record below describes the release preparation before submission.
+
 ## Claude web: actual hosted acceptance
 
 | Gate | Executed evidence |

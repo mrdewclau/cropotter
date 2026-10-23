@@ -1,6 +1,6 @@
 # Claude Desktop submission packet
 
-This packet prepares the local macOS desktop extension for Anthropic's directory. It is not a submission, approval or listing. No new monthly service is needed.
+CropOtter 0.1.2 was submitted to Anthropic’s local desktop-extension directory on 2026-10-22 with explicit owner authorization. The form confirmed receipt. Approval/listing is pending; see [submission status](../claude-directory-status-2026-10-22.md). This packet is the reviewer material, not an approval certificate. No new monthly service is needed.
 
 | Item | Prepared value / location |
 | --- | --- |
@@ -12,8 +12,8 @@ This packet prepares the local macOS desktop extension for Anthropic's directory
 | Data handling | `privacy.md`; local conversion with tool results/resources delivered to Claude |
 | Test cases | `test-cases.md` plus `docs/claude-distribution-2026-10-22.md` for actual acceptance and limitations |
 | Support | https://github.com/mrdewclau/cropotter/issues |
-| Owner-entered fields | Primary contact name/email, Google account identity and primary-party confirmation must be supplied/confirmed by the owner at submission |
-| Owner agreement | Owner reviews and accepts Anthropic's directory terms at submission; this packet does not accept them |
+| Owner contact | Owner explicitly approved contact/account identity and primary-party submission; private details are not published in source |
+| Owner agreement | Owner explicitly authorized acceptance and submission on 2026-10-22; confirmation recorded |
 
 Verified artifact: **0.1.2**, 122,334,239 bytes, SHA-256 `fcda3cd27798d0637358d420d21f0f99561518039846d05195be1338738cc3b1`. Actual installed Claude Desktop conversion and workspace-boundary checks passed. Files are saved in the selected local workspace; this tested host returned local paths/resource URIs rather than attached download cards.
 
@@ -35,6 +35,6 @@ Use this local-extension route, rather than presenting the website URL as a remo
 | Runtime / native support | Apple Silicon and Intel via Rosetta tested; do not claim Windows, Linux desktop or physical Intel hardware acceptance |
 | Reviewer reproduction | A synthetic PDF and explicit local workspace instructions; no real labels, signed URLs or private customer data |
 | Signing disclosure | Bundle is unsigned. No certificate purchased and no false signature/trust claim; publisher signing may be requested by review |
-| Final owner step | Confirm contact/ownership and directory agreement, then submit the verified `.mcpb` |
+| Submission | Completed with explicit owner authorization; await Anthropic review |
 
 To rebuild: Node 24+, `npm ci`, `npm run build:claude-extension`, `npm run test:claude-extension`, `npm run verify:claude-extension` on macOS. Build-time npm/official Node downloads use the network; conversion and extracted acceptance do not. Runtime archive checksums are pinned in `extensions/claude-desktop/runtimes.json`. Dependency versions/integrities are locked in the extension's package lock. After changing the packed local package, maintainers explicitly regenerate that lock with `node tools/claude-extension/build.mjs --refresh-lock` and review the diff.
