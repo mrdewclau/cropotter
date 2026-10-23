@@ -102,7 +102,20 @@ export async function createDistribution({
       [skillName, zipSync(entries, { level: 6 })],
       ["guide.md", guide],
     ]);
-    const index = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CropOtter agent tools</title><style>html{font:16px/1.5 system-ui;color:#23262e;background:#f6f1e7}body{margin:0;height:100dvh;display:flex;flex-direction:column}header{padding:1rem 1.5rem;border-bottom:1px solid #cfc9bc}main{overflow:auto;min-height:0;padding:1rem 1.5rem}a{color:#243a79}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.6 ui-monospace,monospace}nav{display:flex;gap:1rem;flex-wrap:wrap}h1{font-size:1.4rem;margin:0 0 .5rem}</style><header><h1>CropOtter agent tools ${escapeHtml(pkg.version)}</h1><nav><a href="/">Open CropOtter</a><a href="./${filename}">Local package</a><a href="./${skillName}">Agent Skill ZIP</a><a href="./manifest.json">Checksums</a><a href="./guide.md">Markdown guide</a></nav></header><main><pre>${escapeHtml(guide.toString())}</pre></main></html>\n`;
+    const css = await readFile(new URL("./download-page.css", import.meta.url));
+    const js = await readFile(new URL("./download-page.js", import.meta.url));
+    const styleName = `downloads-${sha256(css).slice(0, 12)}.css`;
+    const scriptName = `downloads-${sha256(js).slice(0, 12)}.mjs`;
+    const index = (
+      await readFile(new URL("./download-page.html", import.meta.url), "utf8")
+    )
+      .replaceAll("__STYLE__", styleName)
+      .replaceAll("__SCRIPT__", scriptName)
+      .replaceAll("__PACKAGE__", escapeHtml(filename))
+      .replaceAll("__SKILL__", escapeHtml(skillName))
+      .replaceAll("__GUIDE__", escapeHtml(guide.toString()));
+    artifacts.set(styleName, css);
+    artifacts.set(scriptName, js);
     artifacts.set("index.html", Buffer.from(index));
     const manifest = {
       schemaVersion: 1,

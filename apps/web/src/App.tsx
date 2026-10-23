@@ -546,6 +546,14 @@ export function App() {
           <span>
             <Icon name="shield" size={14} /> On your device. No account needed.
           </span>
+          <a
+            className="text-button"
+            href="/agents/#claude-desktop"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Use in Claude <span aria-hidden="true">↗</span>
+          </a>
         </footer>
       </div>
       {help && <HelpDialog section={help} onClose={() => setHelp(undefined)} />}
