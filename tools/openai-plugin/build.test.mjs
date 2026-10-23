@@ -39,7 +39,7 @@ test(
         new TextDecoder().decode(entries["plugin.json"]),
       );
       assert.equal(manifest.name, "cropotter");
-      assert.equal(manifest.version, "0.1.0");
+      assert.equal(manifest.version, "0.1.1");
       assert.ok(
         !entries["mcp.json"] &&
           !entries[".app.json"] &&

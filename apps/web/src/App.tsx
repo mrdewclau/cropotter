@@ -548,11 +548,11 @@ export function App() {
           </span>
           <a
             className="text-button"
-            href="/agents/#claude-desktop"
+            href="/agents/"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Use in Claude <span aria-hidden="true">↗</span>
+            Claude + ChatGPT <span aria-hidden="true">↗</span>
           </a>
         </footer>
       </div>

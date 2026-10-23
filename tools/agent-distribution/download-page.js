@@ -3,6 +3,7 @@ const panels = [...document.querySelectorAll('[role="tabpanel"]')];
 function selectTab(id, moveFocus = false) {
   const selected =
     tabs.find((tab) => tab.getAttribute("aria-controls") === id) ?? tabs[0];
+  const changed = selected.getAttribute("aria-selected") !== "true";
   for (const tab of tabs) {
     const active = tab === selected;
     tab.setAttribute("aria-selected", String(active));
@@ -10,12 +11,12 @@ function selectTab(id, moveFocus = false) {
   }
   for (const panel of panels)
     panel.hidden = panel.id !== selected.getAttribute("aria-controls");
-  const claude = selected === tabs[0];
-  for (const note of document.querySelectorAll("[data-claude-note]"))
-    note.hidden = !claude;
-  for (const note of document.querySelectorAll("[data-other-note]"))
-    note.hidden = claude;
-  if (moveFocus) selected.focus({ preventScroll: true });
+  for (const note of document.querySelectorAll("[data-agent-view]"))
+    note.hidden =
+      note.dataset.agentView !== selected.getAttribute("aria-controls");
+  const dialogs = changed ? [...document.querySelectorAll("dialog[open]")] : [];
+  for (const dialog of dialogs) dialog.close();
+  if (moveFocus || dialogs.length) selected.focus({ preventScroll: true });
 }
 for (const [index, tab] of tabs.entries()) {
   tab.addEventListener("click", () => {
@@ -45,7 +46,20 @@ for (const opener of document.querySelectorAll("[data-dialog]")) {
     const dialog = document.getElementById(opener.dataset.dialog);
     dialog.addEventListener(
       "close",
-      () => opener.focus({ preventScroll: true }),
+      () => {
+        const active = document.activeElement;
+        if (
+          active &&
+          active !== document.body &&
+          !dialog.contains(active) &&
+          active.getClientRects().length
+        )
+          return;
+        const target = opener.getClientRects().length
+          ? opener
+          : tabs.find((tab) => tab.getAttribute("aria-selected") === "true");
+        target?.focus({ preventScroll: true });
+      },
       { once: true },
     );
     dialog.showModal();

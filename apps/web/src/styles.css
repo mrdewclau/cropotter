@@ -1138,9 +1138,11 @@ body,
   height: 100dvh;
   margin: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 .site-header {
+  container-type: inline-size;
   min-height: 64px;
   padding: 8px clamp(16px, 3vw, 48px);
   border-bottom: 1px solid var(--rule);
@@ -1159,6 +1161,11 @@ body,
   letter-spacing: 0.08em;
   color: var(--muted);
   margin-right: auto;
+}
+@container (max-width: 18rem) {
+  .brand span {
+    display: none;
+  }
 }
 .site-header nav {
   gap: 12px;

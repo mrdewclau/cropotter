@@ -53,11 +53,9 @@ export async function buildOpenAIPlugin({
       stamp,
     ];
     entries["plugin.json"] = [new Uint8Array(manifestBytes), stamp];
-    entries["assets/cropotter-icon.svg"] = [
+    entries["assets/cropotter-icon.png"] = [
       new Uint8Array(
-        await readFile(
-          join(root, "apps/web/public/brand/CropOtter-CO-icon.svg"),
-        ),
+        await readFile(join(root, "plugins/openai/assets/cropotter-icon.png")),
       ),
       stamp,
     ];
@@ -75,6 +73,15 @@ export async function buildOpenAIPlugin({
       new Uint8Array(await readFile(join(root, "LICENSE"))),
       stamp,
     ];
+    for (const [source, destination] of [
+      ["docs/openai-plugin/privacy.md", "PRIVACY.md"],
+      ["docs/openai-plugin/terms.md", "TERMS.md"],
+    ]) {
+      entries[destination] = [
+        new Uint8Array(await readFile(join(root, source))),
+        stamp,
+      ];
+    }
     const bytes = zipSync(entries, { level: 6 });
     await mkdir(outputDir, { recursive: true });
     const filename = `cropotter-chatgpt-${manifest.version}.zip`;

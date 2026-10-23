@@ -35,7 +35,8 @@
     "test:web:browser": "playwright test --config apps/web/playwright.config.ts",
     "typecheck:web": "tsc --noEmit -p apps/web/tsconfig.json",
     "build:chatgpt-plugin": "npm run build:local && node tools/openai-plugin/build.mjs",
-    "test:chatgpt-plugin": "npm run build:local && node --test tools/openai-plugin/*.test.mjs"
+    "test:chatgpt-plugin": "npm run build:local && node --test tools/openai-plugin/*.test.mjs",
+    "verify:chatgpt-submission": "node tools/openai-plugin/validate.mjs"
   },
   "devDependencies": {
     "@anthropic-ai/mcpb": "2.1.2",

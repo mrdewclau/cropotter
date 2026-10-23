@@ -1,9 +1,9 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "cropotter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Format shipping-label PDFs as reviewed 4 by 6 inch PDF, PNG and ZIP files using the bundled CropOtter engine in your ChatGPT workspace.",
-  "author": { "name": "CropOtter", "url": "https://cropotter.com" },
+  "author": { "name": "James Boyd", "url": "https://cropotter.com" },
   "homepage": "https://cropotter.com/agents/",
   "repository": "https://github.com/mrdewclau/cropotter",
   "license": "MIT",
@@ -14,18 +14,34 @@
         "displayName": "CropOtter",
         "shortDescription": "Shipping labels, ready to go",
         "longDescription": "Turn an attached shipping-label PDF into a portrait 4 by 6 inch PDF, PNG or ZIP. Uses the same CropOtter engine as the website, preserves proportions and minimum white margins, and withholds uncertain crops for deliberate review. Requires a ChatGPT execution environment with Node.js 24+, npm, first-use public npm access and supported native canvas dependencies. Files are processed in the caller's execution environment, not on a CropOtter conversion server. Your ChatGPT plan, usage limits, environment permissions and OpenAI data settings still apply. No CropOtter account, model API key or new owner-hosted conversion service is required. Direct printing and arbitrary PDF editing are not supported.",
-        "developerName": "CropOtter",
+        "developerName": "James Boyd",
         "category": "Productivity",
-        "websiteURL": "https://cropotter.com",
+        "websiteURL": "https://cropotter.com/agents/#chatgpt",
         "supportURL": "https://github.com/mrdewclau/cropotter/issues",
         "privacyPolicyURL": "https://github.com/mrdewclau/cropotter/blob/main/docs/openai-plugin/privacy.md",
+        "termsOfServiceURL": "https://github.com/mrdewclau/cropotter/blob/main/docs/openai-plugin/terms.md",
         "defaultPrompt": [
           "Format my attached shipping-label PDF as 4 × 6 PDF and PNG.",
           "Try CropOtter with its bundled synthetic sample label."
         ],
         "brandColor": "#243A79",
-        "composerIcon": "./assets/cropotter-icon.svg",
-        "logo": "./assets/cropotter-icon.svg"
+        "composerIcon": "./assets/cropotter-icon.png",
+        "logo": "./assets/cropotter-icon.png"
+      },
+      "review": {
+        "prompts": [
+          "Use the bundled synthetic sample to create PDF, PNG and ZIP files named Review demo at 300 DPI.",
+          "Format my attached shipping-label PDF as a 4 × 6 PDF and PNG named Order 204 at 203 DPI.",
+          "Analyze this PDF first and tell me which pages or crops need review before creating files.",
+          "Send this shipping label straight to my Bluetooth printer.",
+          "Search my whole computer for shipping PDFs and convert all of them."
+        ],
+        "commerce": false,
+        "commerce_description": "CropOtter is free and has no purchases, checkout or payment processing. The caller's existing ChatGPT plan and runtime usage are separate."
+      },
+      "publication": {
+        "countries": [],
+        "release_notes": "Prepare the existing skills-only plugin for directory review with James Boyd's publisher details, public policies, PNG branding and review prompts. The packaged conversion engine and human-review safeguards are unchanged."
       }
     }
   }

@@ -96,6 +96,21 @@ export function HelpDialog({
               . No separate Node setup is needed. The extension is unsigned and
               its Anthropic directory review is pending.
             </p>
+            <h3>Use in ChatGPT.</h3>
+            <p>
+              <a
+                href="/agents/#chatgpt"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download the plugin ZIP and setup guide
+              </a>
+              . Web Chat and desktop Work conversion are tested; mobile remains
+              unverified. This preview needs a supported Node 24+ runtime, npm
+              access and private plugin installation. Availability and
+              permissions vary by plan and host. It is free, with no CropOtter
+              account or API key; directory submission is being prepared.
+            </p>
             <h3>Use with other AI agents.</h3>
             <p>
               Compatible browser agents can use this page's tools. For local MCP
