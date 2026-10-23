@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Install CropOtter in Claude Desktop. Local shipping-label formatting, with no CropOtter account or separate runtime setup."
+    />
+    <title>CropOtter for Claude — Your labels. Ready to go.</title>
+    <link rel="icon" href="/brand/CropOtter-CO-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./__STYLE__" />
+    <script type="module" src="./__SCRIPT__"></script>
+  </head>
+  <body>
+    <div class="download-shell">
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="CropOtter home"
+          ><img
+            src="/brand/CropOtter-CO-icon.svg"
+            width="36"
+            height="36"
+            alt=""
+          /><span>CropOtter</span></a
+        >
+        <span class="header-purpose">YOUR LABELS. READY TO GO.</span>
+        <a class="back-link" href="/"
+          >Format a PDF <span aria-hidden="true">↗</span></a
+        >
+      </header>
+      <main>
+        <div class="workspace">
+          <nav class="workspace-nav" aria-label="Agent downloads">
+            <div role="tablist" aria-label="Choose your agent">
+              <button
+                id="claude-tab"
+                role="tab"
+                aria-selected="true"
+                aria-controls="claude-desktop"
+              >
+                Claude Desktop
+              </button>
+              <button
+                id="other-tab"
+                role="tab"
+                aria-selected="false"
+                aria-controls="other-agents"
+                tabindex="-1"
+              >
+                Other agents
+              </button>
+            </div>
+            <span class="workspace-label">THE MAILROOM, CONNECTED</span>
+          </nav>
+          <section
+            class="claude-panel"
+            id="claude-desktop"
+            role="tabpanel"
+            aria-labelledby="claude-tab"
+          >
+            <div class="hero">
+              <p class="eyebrow">CROPOTTER + CLAUDE</p>
+              <h1>YOUR LABELS.<br /><span>IN CLAUDE.</span></h1>
+              <p class="intro">
+                Print-ready 4 × 6 PDF, PNG and ZIP.<br />Right from your chat.
+              </p>
+              <div class="primary-actions">
+                <a
+                  class="button primary"
+                  href="https://github.com/mrdewclau/cropotter/releases/download/claude-desktop-v0.1.2/cropotter-0.1.2-macos-universal.mcpb"
+                  ><svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path d="M12 3v12m-5-5 5 5 5-5M4 15v6h16v-6" /></svg
+                  >Download for Mac</a
+                >
+                <button class="text-button" data-dialog="install-dialog">
+                  How to install
+                </button>
+              </div>
+              <p class="requirements">
+                macOS 13.5+<span class="hardware">
+                  · Apple Silicon &amp; Intel</span
+                ><br /><span class="runtime"
+                  >v0.1.2 · 117 MB · Runtime included</span
+                >
+              </p>
+            </div>
+            <div class="setup-guide" aria-label="Three steps to get started">
+              <p class="eyebrow">FROM DOWNLOAD TO DONE</p>
+              <ol class="setup-steps">
+                <li>
+                  <span class="step-number">01</span>
+                  <div>
+                    <h2>Open it.</h2>
+                    <p>Open the downloaded .mcpb file in Claude Desktop.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="step-number">02</span>
+                  <div>
+                    <h2>Pick a folder.</h2>
+                    <p>
+                      Choose a private <strong>Label workspace</strong> for your
+                      PDFs and finished files.
+                    </p>
+                  </div>
+                </li>
+                <li>
+                  <span class="step-number">03</span>
+                  <div>
+                    <h2>Ask Claude.</h2>
+                    <p>
+                      Save your PDF there. Give Claude its file path, then ask
+                      CropOtter to format it.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+              <div class="file-output" aria-hidden="true">
+                <span>PDF</span><span>PNG</span><span>ZIP</span
+                ><span>4 × 6. READY TO GO.</span>
+              </div>
+            </div>
+          </section>
+          <section
+            id="other-agents"
+            class="other-panel"
+            role="tabpanel"
+            aria-labelledby="other-tab"
+            hidden
+          >
+            <h1 class="sr-only">CropOtter for other AI agents</h1>
+            <article class="agent-card">
+              <p class="eyebrow">01 / IN YOUR BROWSER</p>
+              <h2>Browser tools.</h2>
+              <p>Use CropOtter through a compatible browser agent.</p>
+              <a class="button secondary" href="/">Open formatter</a>
+            </article>
+            <article class="agent-card">
+              <p class="eyebrow">02 / LOCAL CONNECTION</p>
+              <h2>Local MCP.</h2>
+              <p>Connect your agent over stdio. Requires Node 24+.</p>
+              <a class="button secondary" href="./__PACKAGE__"
+                >Download MCP package</a
+              >
+            </article>
+            <article class="agent-card">
+              <p class="eyebrow">03 / YOUR AGENT’S RUNTIME</p>
+              <h2>Agent Skill.</h2>
+              <p>Run the complete skill in a supported Node 24+ runtime.</p>
+              <a class="button secondary" href="./__SKILL__"
+                >Download Agent Skill</a
+              >
+            </article>
+          </section>
+          <div class="workspace-status">
+            <p role="note" aria-label="Directory status" data-claude-note>
+              <span class="status-dot" aria-hidden="true"></span
+              ><strong>Directory review pending.</strong>
+              <span class="status-detail"
+                >Unsigned installer; expect Claude’s security warning.</span
+              >
+            </p>
+            <p data-other-note hidden>
+              Local tools · No CropOtter account or API key
+            </p>
+            <button
+              class="text-button"
+              data-dialog="advanced-dialog"
+              data-other-note
+              hidden
+            >
+              Advanced setup
+            </button>
+          </div>
+        </div>
+      </main>
+      <footer class="site-footer">
+        <span>ON YOUR DEVICE. NO ACCOUNT NEEDED.</span>
+        <div>
+          <button class="text-button" data-dialog="privacy-dialog">
+            Data handling</button
+          ><a
+            href="https://github.com/mrdewclau/cropotter/releases/tag/claude-desktop-v0.1.2"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Source &amp; checksums <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </footer>
+    </div>
+    <dialog id="install-dialog" aria-labelledby="install-title">
+      <header class="dialog-header">
+        <h2 id="install-title">Install CropOtter in Claude</h2>
+        <button
+          class="icon-button"
+          data-close
+          aria-label="Close installation guide"
+        >
+          ×
+        </button>
+      </header>
+      <div class="dialog-content">
+        <ol class="dialog-steps">
+          <li>
+            <strong>Open the download.</strong> Open the .mcpb file with Claude
+            Desktop.
+          </li>
+          <li>
+            <strong>Choose a Label workspace.</strong> Pick a private folder for
+            PDFs and converted files.
+          </li>
+          <li>
+            <strong>Save a PDF there and ask Claude.</strong> Give it the file’s
+            path and your preferred output name and format.
+          </li>
+        </ol>
+        <p class="notice">
+          This installer is unsigned and directory review is pending. Review its
+          source and file access before installing. Claude may show an
+          unverified-developer warning.
+        </p>
+        <p>
+          Finished files are saved in your workspace. This extension is for
+          Claude Desktop on macOS 13.5+ (Apple Silicon and Intel), not Claude
+          web or mobile. Version 0.1.2 is 117 MB with its runtime included.
+        </p>
+      </div>
+    </dialog>
+    <dialog id="privacy-dialog" aria-labelledby="privacy-title">
+      <header class="dialog-header">
+        <h2 id="privacy-title">Your label stays yours.</h2>
+        <button class="icon-button" data-close aria-label="Close data handling">
+          ×
+        </button>
+      </header>
+      <div class="dialog-content">
+        <p>
+          Conversion runs on your Mac. CropOtter has no account, telemetry or
+          remote conversion service.
+        </p>
+        <p>
+          Tool handlers accept files and output paths inside your selected
+          workspace. This is an application-level boundary; the extension runs
+          with your user’s computer permissions.
+        </p>
+        <p>
+          Results and files you share with Claude follow Anthropic’s data
+          policies. Using Claude is not a promise that everything stays off
+          Anthropic’s servers.
+        </p>
+        <p>
+          <a
+            href="https://github.com/mrdewclau/cropotter/blob/main/docs/claude-submission/privacy.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read the full data-handling statement ↗</a
+          >
+        </p>
+      </div>
+    </dialog>
+    <dialog
+      id="advanced-dialog"
+      class="advanced-dialog"
+      aria-labelledby="advanced-title"
+    >
+      <header class="dialog-header">
+        <h2 id="advanced-title">Advanced agent setup</h2>
+        <button
+          class="icon-button"
+          data-close
+          aria-label="Close advanced setup"
+        >
+          ×
+        </button>
+      </header>
+      <div class="dialog-content"><pre>__GUIDE__</pre></div>
+      <footer class="dialog-footer">
+        <a href="./guide.md" download>Download setup guide</a
+        ><a href="./manifest.json" target="_blank" rel="noopener noreferrer"
+          >Artifact checksums ↗</a
+        >
+      </footer>
+    </dialog>
+  </body>
+</html>

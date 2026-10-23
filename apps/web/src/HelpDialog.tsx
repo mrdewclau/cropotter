@@ -84,7 +84,19 @@ export function HelpDialog({
               and expired links will not work. Download the file from the
               sender, then upload it here.
             </p>
-            <h3>Use with AI agents.</h3>
+            <h3>Use in Claude Desktop.</h3>
+            <p>
+              <a
+                href="/agents/#claude-desktop"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download the Mac extension and installation guide
+              </a>
+              . No separate Node setup is needed. The extension is unsigned and
+              its Anthropic directory review is pending.
+            </p>
+            <h3>Use with other AI agents.</h3>
             <p>
               Compatible browser agents can use this page's tools. For local MCP
               and the executable skill, open the{" "}
